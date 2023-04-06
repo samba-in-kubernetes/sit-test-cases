@@ -61,6 +61,7 @@ smbtorture_tests_info_file = sys.argv[2]
 with open(smbtorture_tests_info_file) as f:
     smbtorture_info = yaml.safe_load(f)
 
+all_pass = True
 for sharenum in range(testhelper.get_num_shares(test_info)):
     mount_params["share"] = testhelper.get_share(test_info, sharenum)
     print("")
@@ -75,5 +76,6 @@ for sharenum in range(testhelper.get_num_shares(test_info)):
             with open(output) as f:
                 print(f.read())
             print("--Output End--")
-            assert False
+            all_pass = False
         print("{:>10}".format("[OK]"))
+assert all_pass
