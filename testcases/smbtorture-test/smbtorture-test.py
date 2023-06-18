@@ -10,6 +10,7 @@ script_root = os.path.dirname(os.path.realpath(__file__))
 smbtorture_exec = "/bin/smbtorture"
 filter_subunit_exec = "/usr/bin/python3 " + script_root + "/selftest/filter-subunit"
 format_subunit_exec ="/usr/bin/python3 " + script_root + "/selftest/format-subunit"
+smbtorture_tests_file = script_root + "/smbtorture-tests-info.yml"
 
 output = testhelper.get_tmp_file("/tmp")
 
@@ -48,8 +49,8 @@ def smbtorture(mount_params, test, output):
     ret = os.system(cmd)
     return ret == 0
 
-def smbtorture_test(test_info, smbtorture_info_file):
-    with open(smbtorture_tests_info_file) as f:
+def smbtorture_test(test_info):
+    with open(smbtorture_tests_file) as f:
         smbtorture_info = yaml.safe_load(f)
     mount_params = testhelper.get_default_mount_params(test_info)
     all_pass = True
@@ -74,15 +75,13 @@ def smbtorture_test(test_info, smbtorture_info_file):
 def test_smbtorture():
     test_info_file = os.getenv('TEST_INFO_FILE')
     test_info = testhelper.read_yaml(test_info_file)
-    smbtorture_info_file = script_root + "/smbtorture-tests-info.yml"
-    smbtorture_test(test_info, smbtorture_info_file)
+    smbtorture_test(test_info)
 
 if __name__ == "__main__":
-    if (len(sys.argv) != 3):
-        print("Usage: %s <test-info.yml> <smbtorture-tests-info.yml>" % (sys.argv[0]))
+    if (len(sys.argv) != 2):
+        print("Usage: %s <test-info.yml>" % (sys.argv[0]))
         exit(1)
 
     test_info_file = sys.argv[1]
     test_info = testhelper.read_yaml(test_info_file)
-    smbtorture_info_file = sys.argv[2]
-    smbtorture_test(test_info, smbtorture_info_file)
+    smbtorture_test(test_info)
