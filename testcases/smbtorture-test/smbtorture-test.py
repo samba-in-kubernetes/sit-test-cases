@@ -48,34 +48,41 @@ def smbtorture(mount_params, test, output):
     ret = os.system(cmd)
     return ret == 0
 
-if (len(sys.argv) != 3):
-    print("Usage: %s <test-info.yml> <smbtorture-tests-info.yml>" % (sys.argv[0]))
-    exit(1)
+def smbtorture_test(test_info, smbtorture_info_file):
+    with open(smbtorture_tests_info_file) as f:
+        smbtorture_info = yaml.safe_load(f)
+    mount_params = testhelper.get_default_mount_params(test_info)
+    all_pass = True
+    for sharenum in range(testhelper.get_num_shares(test_info)):
+        mount_params["share"] = testhelper.get_share(test_info, sharenum)
+        print("")
+        print("share: %s" % (mount_params["share"]))
+        for torture_test in smbtorture_info:
+            print("\t{:<20}".format(torture_test)),
+            ret = smbtorture(mount_params, torture_test, output)
+            if (ret == False):
+                print("{:>10}".format("[Failed]"))
+                print("\n\n")
+                print("--Output Start--")
+                with open(output) as f:
+                    print(f.read())
+                print("--Output End--")
+                all_pass = False
+            print("{:>10}".format("[OK]"))
+    assert all_pass
 
-test_info_file = sys.argv[1]
-test_info = testhelper.read_yaml(test_info_file)
-mount_params = testhelper.get_default_mount_params(test_info)
+def test_smbtorture():
+    test_info_file = os.getenv('TEST_INFO_FILE')
+    test_info = testhelper.read_yaml(test_info_file)
+    smbtorture_info_file = script_root + "/smbtorture-tests-info.yml"
+    smbtorture_test(test_info, smbtorture_info_file)
 
-smbtorture_tests_info_file = sys.argv[2]
+if __name__ == "__main__":
+    if (len(sys.argv) != 3):
+        print("Usage: %s <test-info.yml> <smbtorture-tests-info.yml>" % (sys.argv[0]))
+        exit(1)
 
-with open(smbtorture_tests_info_file) as f:
-    smbtorture_info = yaml.safe_load(f)
-
-all_pass = True
-for sharenum in range(testhelper.get_num_shares(test_info)):
-    mount_params["share"] = testhelper.get_share(test_info, sharenum)
-    print("")
-    print("share: %s" % (mount_params["share"]))
-    for torture_test in smbtorture_info:
-        print("\t{:<20}".format(torture_test)),
-        ret = smbtorture(mount_params, torture_test, output)
-        if (ret == False):
-            print("{:>10}".format("[Failed]"))
-            print("\n\n")
-            print("--Output Start--")
-            with open(output) as f:
-                print(f.read())
-            print("--Output End--")
-            all_pass = False
-        print("{:>10}".format("[OK]"))
-assert all_pass
+    test_info_file = sys.argv[1]
+    test_info = testhelper.read_yaml(test_info_file)
+    smbtorture_info_file = sys.argv[2]
+    smbtorture_test(test_info, smbtorture_info_file)
