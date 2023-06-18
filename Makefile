@@ -1,5 +1,12 @@
+PYTHONPATH := .
+TEST_INFO_FILE := test-info.yml
+PATH := $(PATH):/usr/local/bin
+export PYTHONPATH TEST_INFO_FILE PATH
+
 test:
-	@ PYTHONPATH=`pwd` ./run_all_tests.sh test-info.yml
+	@pytest -v `cat testcases/tests|sed 's/^/testcases\//'`
 
 sanity_test:
-	@ PYTHONPATH=`pwd` ./run_all_tests.sh test-info.yml sanity_tests
+	@pytest -v testcases/consistency_check
+
+.PHONY: test sanity_test
