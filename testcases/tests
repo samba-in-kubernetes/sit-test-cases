@@ -1,4 +1,4 @@
 mount
 consistency_check
-smbtorture-test
+smbtorture
 
