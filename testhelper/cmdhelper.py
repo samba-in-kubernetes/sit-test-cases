@@ -1,4 +1,5 @@
 import os
+import subprocess
 
 
 def cifs_mount(mount_params, mount_point, opts=None):
@@ -48,3 +49,30 @@ def cifs_umount(mount_point):
     ret = os.system(cmd)
     assert ret == 0, "Error mounting: ret %d cmd: %s\n" % (ret, cmd)
     return ret
+
+
+def smbclient(mount_params, cmds):
+    """Run the following command on smbclient and return the output.
+
+    Parameters:
+    mount_params: Dict containing the mount parameters.
+    cmds: String containg the ';' separated commands to run.
+
+    Returns:
+    int: Return value from the shell execution
+    string: stdout
+    """
+    smbclient_cmd = [
+        "smbclient",
+        "--user=%s%%%s" % (mount_params["username"], mount_params["password"]),
+        "//%s/%s" % (mount_params["host"], mount_params["share"]),
+        "-c",
+        cmds,
+    ]
+    ret = subprocess.run(
+        smbclient_cmd,
+        universal_newlines=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+    )
+    return (ret.returncode, ret.stdout)
