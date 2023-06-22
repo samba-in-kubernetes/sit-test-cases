@@ -17,8 +17,7 @@ test_info = {}
 output = testhelper.get_tmp_file("/tmp")
 
 def smbtorture(share_name, test, output):
-    mount_params = testhelper.get_default_mount_params(test_info)
-    mount_params["share"] = share_name
+    mount_params = testhelper.get_mount_parameters(test_info, share_name)
 
     smbtorture_options_str = "--fullname --option=torture:progress=no --option=torture:sharedelay=100000 --option=torture:writetimeupdatedelay=500000"
     smbtorture_cmd = "%s %s --format=subunit --target=samba3 --user=%s%%%s //%s/%s %s 2>&1" % (

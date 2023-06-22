@@ -61,7 +61,7 @@ def get_total_mount_parameter_combinations(test_info):
     """
     return len(test_info["public_interfaces"]) * len(test_info["test_users"])
 
-def get_mount_parameter(test_info, share, combonum):
+def get_mount_parameters(test_info, share, combonum=0):
     """Get the mount_params dict for a given share and given combination number
 
     Parameters:

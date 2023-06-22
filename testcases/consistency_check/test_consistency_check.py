@@ -26,8 +26,7 @@ def file_content_check(f, comp_str):
     return read_data == comp_str
 
 def consistency_check(mount_point, share_name):
-    mount_params = testhelper.get_default_mount_params(test_info)
-    mount_params["share"] = share_name
+    mount_params = testhelper.get_mount_parameters(test_info, share_name)
     try:
         flag_share_mounted = 0
         flag_file_created = 0
