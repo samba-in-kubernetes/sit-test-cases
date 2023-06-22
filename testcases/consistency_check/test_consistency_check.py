@@ -44,14 +44,16 @@ def consistency_check(mount_point, share_name):
         testhelper.cifs_mount(mount_params, mount_point)
         flag_share_mounted = 1
         with open(test_file, 'r') as f:
-            assert file_content_check(f, test_string), "File content does not match"
+            assert file_content_check(f, test_string)
         os.unlink(test_file)
         testhelper.cifs_umount(mount_point)
         flag_share_mounted = 0
 
+    except AssertionError:
+        pytest.fail("File content does not match")
+
     except:
-        print("Error while executing test")
-        raise
+        pytest.fail("Error when open/write/read/close")
 
     finally:
         if (flag_share_mounted == 1):
