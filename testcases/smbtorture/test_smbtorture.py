@@ -75,12 +75,10 @@ def generate_smbtorture_tests(test_info_file):
 def test_smbtorture(share_name, test):
     ret = smbtorture(share_name, test, output)
     if ret == False:
-        print("--Output Start--")
         with open(output) as f:
             print(f.read())
-        print("--Output End--")
-        assert False
-    assert True
+        pytest.fail("Failure in running test - %s" % (test), pytrace=False)
+    return True
 
 if __name__ == "__main__":
     if (len(sys.argv) != 2):
