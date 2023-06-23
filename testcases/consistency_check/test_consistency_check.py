@@ -15,18 +15,13 @@ test_string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
 # Use a global test_info to get a better output when running pytest
 test_info = {}
 
-def share_names(test_info):
-    share_names = []
-    for sharenum in range(testhelper.get_num_shares(test_info)):
-        share_names.append(testhelper.get_share(test_info, sharenum))
-    return share_names
-
 def file_content_check(f, comp_str):
     read_data = f.read()
     return read_data == comp_str
 
-def consistency_check(mount_point, share_name):
+def consistency_check(mount_point, ipaddr, share_name):
     mount_params = testhelper.get_mount_parameters(test_info, share_name)
+    mount_params["host"] = ipaddr
     try:
         flag_share_mounted = 0
         flag_file_created = 0
@@ -65,15 +60,16 @@ def generate_consistency_check(test_info_file):
         return []
     test_info = testhelper.read_yaml(test_info_file)
     arr = []
-    for share_name in share_names(test_info):
-        arr.append(share_name)
+    for ipaddr in test_info["public_interfaces"]:
+        for share_name in test_info["exported_sharenames"]:
+            arr.append((ipaddr, share_name))
     return arr
 
-@pytest.mark.parametrize("share_name", generate_consistency_check(os.getenv("TEST_INFO_FILE")))
-def test_consistency(share_name):
+@pytest.mark.parametrize("ipaddr,share_name", generate_consistency_check(os.getenv("TEST_INFO_FILE")))
+def test_consistency(ipaddr,share_name):
     tmp_root = testhelper.get_tmp_root()
     mount_point = testhelper.get_tmp_mount_point(tmp_root)
-    consistency_check(mount_point, share_name)
+    consistency_check(mount_point, ipaddr, share_name)
     os.rmdir(mount_point)
     os.rmdir(tmp_root)
 
