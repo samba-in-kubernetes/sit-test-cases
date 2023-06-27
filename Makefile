@@ -7,6 +7,6 @@ test:
 	@pytest -v `cat testcases/tests|sed 's/^/testcases\//'`
 
 sanity_test:
-	@pytest -v testcases/consistency_check
+	@pytest -v testcases/consistency
 
 .PHONY: test sanity_test
