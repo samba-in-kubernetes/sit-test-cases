@@ -7,6 +7,7 @@ PATH := $(PATH):/usr/local/bin
 export PYTHONPATH TEST_INFO_FILE PATH
 
 MYPY_CMD = $(shell command -v mypy 2> /dev/null)
+FLAKE8_CMD = $(shell command -v flake8 2> /dev/null)
 
 test:
 	@pytest -v `cat testcases/tests|sed 's/^/testcases\//'`
@@ -19,3 +20,7 @@ sanity_test:
 .PHONY: check-mypy
 check-mypy:
 	[ ! -z "$(MYPY_CMD)" ] && $(MYPY_CMD) --no-color-output "$(ROOT_DIR)"
+
+.PHONY: check-flake8
+check-flake8:
+	[ ! -z "$(FLAKE8_CMD)" ] && $(FLAKE8_CMD) "$(ROOT_DIR)"
