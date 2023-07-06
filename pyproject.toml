@@ -13,6 +13,9 @@ authors = [
     {name = "Shachar Sharon", email = "ssharon@ibm.com"},
 ]
 
+[tool.setuptools]
+py-modules = [ "testcases", "testhelper" ]
+
 [tool.setuptools_scm]
 
 [tool.black]
