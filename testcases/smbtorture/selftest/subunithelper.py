@@ -21,15 +21,15 @@ import datetime
 import re
 import sys
 import os
-from samba import subunit
-from samba.subunit.run import TestProtocolClient
+from samba import subunit  # type: ignore
+from samba.subunit.run import TestProtocolClient  # type: ignore
 import unittest
 
 try:
     from dateutil.parser import isoparse as iso_parse_date
 except ImportError:
     try:
-        from iso8601 import parse_date as iso_parse_date
+        from iso8601 import parse_date as iso_parse_date  # type: ignore
     except ImportError:
         print("Install either python-dateutil >= 2.7.1 or python-iso8601")
 

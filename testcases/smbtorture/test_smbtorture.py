@@ -7,6 +7,7 @@ import sys
 import os
 import yaml
 import pytest
+import typing
 
 script_root = os.path.dirname(os.path.realpath(__file__))
 smbtorture_exec = "/bin/smbtorture"
@@ -18,7 +19,7 @@ format_subunit_exec = (
 )
 smbtorture_tests_file = script_root + "/smbtorture-tests-info.yml"
 
-test_info = {}
+test_info: typing.Dict[str, typing.Any] = {}
 output = testhelper.get_tmp_file("/tmp")
 
 
