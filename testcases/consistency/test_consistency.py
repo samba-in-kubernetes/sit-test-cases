@@ -10,11 +10,12 @@ import testhelper
 import os
 import sys
 import pytest
+import typing
 
 test_string = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 
 # Use a global test_info to get a better output when running pytest
-test_info = {}
+test_info: typing.Dict[str, typing.Any] = {}
 
 
 def file_content_check(f, comp_str):
@@ -88,9 +89,10 @@ if __name__ == "__main__":
     test_info_file = sys.argv[1]
     tmp_root = testhelper.get_tmp_root()
     mount_point = testhelper.get_tmp_mount_point(tmp_root)
+    ipaddr = "127.0.0.1"
     print("Running consistency check:")
     for share_name in generate_consistency_check(test_info_file):
         print(share_name)
-        consistency_check(mount_point, share_name)
+        consistency_check(mount_point, ipaddr, share_name)
     os.rmdir(mount_point)
     os.rmdir(tmp_root)
