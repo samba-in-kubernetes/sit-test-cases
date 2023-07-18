@@ -18,12 +18,12 @@ test_string = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 test_info: typing.Dict[str, typing.Any] = {}
 
 
-def file_content_check(f, comp_str):
+def file_content_check(f: typing.IO, comp_str: str) -> bool:
     read_data = f.read()
     return read_data == comp_str
 
 
-def consistency_check(mount_point, ipaddr, share_name):
+def consistency_check(mount_point: str, ipaddr: str, share_name: str) -> None:
     mount_params = testhelper.get_mount_parameters(test_info, share_name)
     mount_params["host"] = ipaddr
     try:
@@ -55,9 +55,11 @@ def consistency_check(mount_point, ipaddr, share_name):
             os.unlink(test_file_resp)
 
 
-def generate_consistency_check(test_info_file):
+def generate_consistency_check(
+    test_info_file: typing.Optional[str],
+) -> typing.List[typing.Tuple[str, str]]:
     global test_info
-    if test_info_file is None:
+    if not test_info_file:
         return []
     test_info = testhelper.read_yaml(test_info_file)
     arr = []
@@ -71,7 +73,7 @@ def generate_consistency_check(test_info_file):
     "ipaddr,share_name",
     generate_consistency_check(os.getenv("TEST_INFO_FILE")),
 )
-def test_consistency(ipaddr, share_name):
+def test_consistency(ipaddr: str, share_name: str) -> None:
     tmp_root = testhelper.get_tmp_root()
     mount_point = testhelper.get_tmp_mount_point(tmp_root)
     consistency_check(mount_point, ipaddr, share_name)
