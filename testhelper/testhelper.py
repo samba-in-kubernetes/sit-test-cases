@@ -1,7 +1,8 @@
 import yaml
+import typing
 
 
-def read_yaml(file):
+def read_yaml(file: str) -> dict:
     """Returns a dict containing the contents of the yaml file.
 
     Parameters:
@@ -15,7 +16,9 @@ def read_yaml(file):
     return test_info
 
 
-def gen_mount_params(host, share, username, password):
+def gen_mount_params(
+    host: str, share: str, username: str, password: str
+) -> typing.Dict[str, str]:
     """Generate a dict of parameters required to mount a SMB share.
 
     Parameters:
@@ -36,7 +39,7 @@ def gen_mount_params(host, share, username, password):
     return ret
 
 
-def get_default_mount_params(test_info):
+def get_default_mount_params(test_info: dict) -> typing.Dict[str, str]:
     """Pass a dict of type mount_params containing the first parameters to
     mount the share.
 
@@ -54,7 +57,7 @@ def get_default_mount_params(test_info):
     )
 
 
-def get_total_mount_parameter_combinations(test_info):
+def get_total_mount_parameter_combinations(test_info: dict) -> int:
     """Get total number of combinations of mount parameters for each share.
     This is essentially "number of public  interfaces * number of test users"
 
@@ -67,7 +70,9 @@ def get_total_mount_parameter_combinations(test_info):
     return len(test_info["public_interfaces"]) * len(test_info["test_users"])
 
 
-def get_mount_parameters(test_info, share, combonum=0):
+def get_mount_parameters(
+    test_info: dict, share: str, combonum: int = 0
+) -> typing.Dict[str, str]:
     """Get the mount_params dict for a given share and given combination number
 
     Parameters:
@@ -87,7 +92,7 @@ def get_mount_parameters(test_info, share, combonum=0):
     )
 
 
-def get_num_shares(test_info):
+def get_num_shares(test_info: dict) -> int:
     """Get number of exported shares
 
     Parameters:
@@ -99,7 +104,7 @@ def get_num_shares(test_info):
     return len(test_info["exported_sharenames"])
 
 
-def get_share(test_info, share_num):
+def get_share(test_info: dict, share_num: int) -> str:
     """Get exported share name
 
     Parameters:
