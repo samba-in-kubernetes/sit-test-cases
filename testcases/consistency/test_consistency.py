@@ -89,10 +89,9 @@ if __name__ == "__main__":
     test_info_file = sys.argv[1]
     tmp_root = testhelper.get_tmp_root()
     mount_point = testhelper.get_tmp_mount_point(tmp_root)
-    ipaddr = "127.0.0.1"
     print("Running consistency check:")
-    for share_name in generate_consistency_check(test_info_file):
-        print(share_name)
+    for ipaddr, share_name in generate_consistency_check(test_info_file):
+        print("%s - %s" % (ipaddr, share_name))
         consistency_check(mount_point, ipaddr, share_name)
     os.rmdir(mount_point)
     os.rmdir(tmp_root)
