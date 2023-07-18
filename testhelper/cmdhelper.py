@@ -1,8 +1,11 @@
 import os
 import subprocess
+import typing
 
 
-def cifs_mount(mount_params, mount_point, opts=None):
+def cifs_mount(
+    mount_params: typing.Dict[str, str], mount_point: str, opts: str = ""
+) -> int:
     """Use the cifs module to mount a share.
 
     Parameters:
@@ -36,7 +39,7 @@ def cifs_mount(mount_params, mount_point, opts=None):
     return ret
 
 
-def cifs_umount(mount_point):
+def cifs_umount(mount_point: str) -> int:
     """Unmount a mounted filesystem.
 
     Parameters:
@@ -51,7 +54,9 @@ def cifs_umount(mount_point):
     return ret
 
 
-def smbclient(mount_params, cmds):
+def smbclient(
+    mount_params: typing.Dict[str, str], cmds: str
+) -> typing.Tuple[int, str]:
     """Run the following command on smbclient and return the output.
 
     Parameters:
