@@ -3,7 +3,7 @@ import os
 TMP_DIR = "/tmp/"
 
 
-def get_tmp_root():
+def get_tmp_root() -> str:
     """Returns a temporary directory for use
 
     Parameters:
@@ -21,7 +21,7 @@ def get_tmp_root():
     return tmp_root
 
 
-def get_tmp_mount_point(tmp_root):
+def get_tmp_mount_point(tmp_root: str) -> str:
     """Return a mount point within the temporary directory
 
     Parameters:
@@ -39,7 +39,7 @@ def get_tmp_mount_point(tmp_root):
     return mnt_point
 
 
-def get_tmp_file(tmp_root):
+def get_tmp_file(tmp_root: str) -> str:
     """Return a temporary file within the temporary directory
 
     Parameters:
@@ -58,7 +58,7 @@ def get_tmp_file(tmp_root):
     return tmp_file
 
 
-def get_tmp_dir(tmp_root):
+def get_tmp_dir(tmp_root: str) -> str:
     """Return a temporary directory within the temporary directory
 
     Parameters:
