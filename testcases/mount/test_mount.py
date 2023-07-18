@@ -10,7 +10,7 @@ import sys
 test_string = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 
 
-def mount_test(test_info):
+def mount_test(test_info: dict) -> None:
     tmp_root = testhelper.get_tmp_root()
     mount_point = testhelper.get_tmp_mount_point(tmp_root)
     mount_params = testhelper.get_default_mount_params(test_info)
@@ -47,10 +47,11 @@ def mount_test(test_info):
         os.rmdir(tmp_root)
 
 
-def test_mount():
+def test_mount() -> None:
     test_info_file = os.getenv("TEST_INFO_FILE")
-    test_info = testhelper.read_yaml(test_info_file)
-    mount_test(test_info)
+    if test_info_file:
+        test_info = testhelper.read_yaml(test_info_file)
+        mount_test(test_info)
 
 
 if __name__ == "__main__":
