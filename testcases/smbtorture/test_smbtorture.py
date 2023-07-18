@@ -23,7 +23,7 @@ test_info: typing.Dict[str, typing.Any] = {}
 output = testhelper.get_tmp_file("/tmp")
 
 
-def smbtorture(share_name, test, output):
+def smbtorture(share_name: str, test: str, output: str) -> bool:
     mount_params = testhelper.get_mount_parameters(test_info, share_name)
 
     smbtorture_options_str = (
@@ -98,9 +98,11 @@ def list_smbtorture_tests(test_info):
     return smbtorture_info
 
 
-def generate_smbtorture_tests(test_info_file):
+def generate_smbtorture_tests(
+    test_info_file: typing.Optional[str],
+) -> typing.List[typing.Tuple[str, str]]:
     global test_info
-    if test_info_file is None:
+    if not test_info_file:
         return []
     test_info = testhelper.read_yaml(test_info_file)
     smbtorture_info = list_smbtorture_tests(test_info)
@@ -115,7 +117,7 @@ def generate_smbtorture_tests(test_info_file):
 @pytest.mark.parametrize(
     "share_name,test", generate_smbtorture_tests(os.getenv("TEST_INFO_FILE"))
 )
-def test_smbtorture(share_name, test):
+def test_smbtorture(share_name: str, test: str) -> bool:
     ret = smbtorture(share_name, test, output)
     if not ret:
         with open(output) as f:
