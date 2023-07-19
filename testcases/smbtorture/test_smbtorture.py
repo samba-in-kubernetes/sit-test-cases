@@ -45,33 +45,24 @@ def smbtorture(share_name: str, test: str, output: str) -> bool:
     )
 
     filter_subunit_options_str = "--fail-on-empty --prefix='samba3.'"
-    filter_subunit_filters = (
-        "--expected-failures=" + script_root + "/selftest/knownfail"
-    )
-    filter_subunit_filters = (
-        filter_subunit_filters
-        + " --expected-failures="
-        + script_root
-        + "/selftest/knownfail.d"
-    )
-    filter_subunit_filters = (
-        filter_subunit_filters
-        + " --flapping="
-        + script_root
-        + "/selftest/flapping"
-    )
-    filter_subunit_filters = (
-        filter_subunit_filters
-        + " --flapping="
-        + script_root
-        + "/selftest/flapping.d"
-    )
-    filter_subunit_filters = (
-        filter_subunit_filters
-        + " --flapping="
-        + script_root
-        + "/selftest/flapping.gluster"
-    )
+    filter_subunit_filters = ""
+    for filter in ["knownfail", "knownfail.d"]:
+        filter_subunit_filters = (
+            filter_subunit_filters
+            + " --expected-failures="
+            + script_root
+            + "/selftest/"
+            + filter
+        )
+    for filter in ["flapping", "flapping.d", "flapping.gluster"]:
+        filter_subunit_filters = (
+            filter_subunit_filters
+            + " --flapping="
+            + script_root
+            + "/selftest/"
+            + filter
+        )
+
     filter_subunit_cmd = "%s %s %s" % (
         filter_subunit_exec,
         filter_subunit_options_str,
