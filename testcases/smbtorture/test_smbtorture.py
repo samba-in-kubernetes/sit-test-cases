@@ -8,6 +8,7 @@ import os
 import yaml
 import pytest
 import typing
+import subprocess
 
 script_root = os.path.dirname(os.path.realpath(__file__))
 smbtorture_exec = "/bin/smbtorture"
@@ -16,10 +17,11 @@ format_subunit_exec = script_root + "/selftest/format-subunit"
 smbtorture_tests_file = script_root + "/smbtorture-tests-info.yml"
 
 test_info: typing.Dict[str, typing.Any] = {}
+# Temp filename containing the output of run commands.
 output = testhelper.get_tmp_file("/tmp")
 
 
-def smbtorture(share_name: str, test: str, output: str) -> bool:
+def smbtorture(share_name: str, test: str, tmp_output: str) -> bool:
     # build smbtorture command
     mount_params = testhelper.get_mount_parameters(test_info, share_name)
     smbtorture_cmd = [
@@ -40,7 +42,7 @@ def smbtorture(share_name: str, test: str, output: str) -> bool:
         "/usr/bin/python3",
         filter_subunit_exec,
         "--fail-on-empty",
-        "--prefix='samba3.'",
+        "--prefix=samba3.",
     ]
     for filter in ["knownfail", "knownfail.d"]:
         filter_subunit_cmd.append(
@@ -54,19 +56,48 @@ def smbtorture(share_name: str, test: str, output: str) -> bool:
     # build format-subunit commands
     format_subunit_cmd = ["/usr/bin/python3", format_subunit_exec]
 
-    # now combine all separate commands
-    cmd = "%s|%s|/usr/bin/tee -a %s|%s >/dev/null" % (
-        " ".join(smbtorture_cmd),
-        " ".join(filter_subunit_cmd),
-        output,
-        " ".join(format_subunit_cmd),
+    # run commands - smbtorture
+    smbtorturec = subprocess.Popen(
+        smbtorture_cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE
     )
+    assert smbtorturec.stdout is not None
 
-    with open(output, "w") as f:
-        f.write("Command: " + cmd + "\n\n")
+    # run commands - filter_subunit
+    with open(tmp_output, "w") as filter_subunit_stdout:
+        filter_subunitc = subprocess.Popen(
+            filter_subunit_cmd,
+            stdout=filter_subunit_stdout,
+            stdin=smbtorturec.stdout,
+        )
+        smbtorturec.stdout.close()
+        filter_subunitc.communicate()
 
-    ret = os.system(cmd)
-    return ret == 0
+    # run commands - format_subunit
+    with open(tmp_output, "r") as filter_subunit_stdout:
+        format_subunitc = subprocess.run(
+            format_subunit_cmd,
+            stdin=filter_subunit_stdout,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            universal_newlines=True,
+        )
+
+    # Error - Print out the debugging data for this smbtorture run
+    if format_subunitc.returncode != 0:
+        # print the commands as they will be run.
+        cmd = "%s|%s|%s" % (
+            " ".join(smbtorture_cmd),
+            " ".join(filter_subunit_cmd),
+            " ".join(format_subunit_cmd),
+        )
+        print("Command: " + cmd + "\n\n")
+        # Print the intermediate output
+        with open(tmp_output, "r") as filter_subunit_stdout:
+            print(filter_subunit_stdout.read())
+        print("\n" + format_subunitc.stdout)
+        return False
+
+    return True
 
 
 def list_smbtorture_tests():
@@ -96,9 +127,9 @@ def generate_smbtorture_tests(
 )
 def test_smbtorture(share_name: str, test: str) -> bool:
     ret = smbtorture(share_name, test, output)
+    if os.path.exists(output):
+        os.unlink(output)
     if not ret:
-        with open(output) as f:
-            print(f.read())
         pytest.fail("Failure in running test - %s" % (test), pytrace=False)
     return True
 
