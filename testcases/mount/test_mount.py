@@ -9,6 +9,8 @@ import sys
 import pytest
 import typing
 
+from .mount_io import check_io_consistency
+
 test_string = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 
 # Use a global test_info to get a better output when running pytest
@@ -27,6 +29,7 @@ def mount_check(ipaddr: str, share_name: str) -> None:
         test_file = testhelper.get_tmp_file(mount_point)
         with open(test_file, "w") as f:
             f.write(test_string)
+        check_io_consistency(mount_point)
     finally:
         if os.path.exists(test_file):
             os.unlink(test_file)
