@@ -6,52 +6,55 @@
 import testhelper
 import os
 import sys
+import pytest
+import typing
 
 test_string = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 
+# Use a global test_info to get a better output when running pytest
+test_info: typing.Dict[str, typing.Any] = {}
 
-def mount_test(test_info: dict) -> None:
+
+def mount_check(ipaddr: str, share_name: str) -> None:
+    mount_params = testhelper.get_mount_parameters(test_info, share_name)
+    mount_params["host"] = ipaddr
     tmp_root = testhelper.get_tmp_root()
     mount_point = testhelper.get_tmp_mount_point(tmp_root)
-    mount_params = testhelper.get_default_mount_params(test_info)
-
-    flag_share_mounted = 0
-    flag_file_created = 0
+    flag_mounted = False
     try:
-        print("\n")
-        for i in range(testhelper.get_num_shares(test_info)):
-            mount_params["share"] = testhelper.get_share(test_info, i)
-            print(
-                "Testing //%s/%s"
-                % (mount_params["host"], mount_params["share"])
-            )
-            testhelper.cifs_mount(mount_params, mount_point)
-            flag_share_mounted = 1
-            test_file = testhelper.get_tmp_file(mount_point)
-            flag_file_created = 1
-            with open(test_file, "w") as f:
-                f.write(test_string)
-            os.unlink(test_file)
-            flag_file_created = 0
-            testhelper.cifs_umount(mount_point)
-            flag_share_mounted = 0
-    except Exception:
-        print("Error while executing test")
-        raise
+        testhelper.cifs_mount(mount_params, mount_point)
+        flag_mounted = True
+        test_file = testhelper.get_tmp_file(mount_point)
+        with open(test_file, "w") as f:
+            f.write(test_string)
     finally:
-        if flag_file_created == 1:
+        if os.path.exists(test_file):
             os.unlink(test_file)
-        if flag_share_mounted == 1:
+        if flag_mounted:
             testhelper.cifs_umount(mount_point)
         os.rmdir(mount_point)
         os.rmdir(tmp_root)
 
 
-def test_mount() -> None:
-    test_info_file = os.getenv("TEST_INFO_FILE")
-    if test_info_file:
-        test_info = testhelper.read_yaml(test_info_file)
-        mount_test(test_info)
+def generate_mount_check(
+    test_info_file: typing.Optional[str],
+) -> typing.List[typing.Tuple[str, str]]:
+    global test_info
+    if not test_info_file:
+        return []
+    test_info = testhelper.read_yaml(test_info_file)
+    arr = []
+    for ipaddr in test_info["public_interfaces"]:
+        for share_name in test_info["exported_sharenames"]:
+            arr.append((ipaddr, share_name))
+    return arr
+
+
+@pytest.mark.parametrize(
+    "ipaddr,share_name", generate_mount_check(os.getenv("TEST_INFO_FILE"))
+)
+def test_mount(ipaddr: str, share_name: str) -> None:
+    mount_check(ipaddr, share_name)
 
 
 if __name__ == "__main__":
@@ -59,5 +62,7 @@ if __name__ == "__main__":
         print("Usage: %s <test-info.yml>" % (sys.argv[0]))
         exit(1)
     test_info_file = sys.argv[1]
-    test_info = testhelper.read_yaml(test_info_file)
-    mount_test(test_info)
+    print("Running mount check:")
+    for ipaddr, share_name in generate_mount_check(test_info_file):
+        print("%s - %s" % (ipaddr, share_name))
+        mount_check(ipaddr, share_name)
