@@ -1,6 +1,8 @@
 import os
 import subprocess
 import typing
+import shutil
+from pathlib import Path
 
 
 def cifs_mount(
@@ -76,6 +78,52 @@ def smbclient(
     ]
     ret = subprocess.run(
         smbclient_cmd,
+        universal_newlines=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+    )
+    return (ret.returncode, ret.stdout)
+
+
+def check_cmds(cmds: typing.List[str]) -> Path:
+    """Return first file path which exists.
+
+    Parameters:
+    cmds: list of commands to test
+
+    Returns:
+    pathlib.Path: first available file path from the list
+    """
+    for c in cmds:
+        cmd = shutil.which(c)
+        if cmd is not None:
+            return Path(cmd)
+    assert False, "Could not find command"
+
+
+def podman_run(test_image: str, test_root: Path) -> typing.Tuple[int, str]:
+    """Run podman command
+
+    Parameters:
+    test_image: The image to be used for the podman run
+    test_root: The root of the folder which will be used to perform the tests
+
+    Returns:
+    int: Return value from the execution
+    string: stdout
+    """
+    cmds = ["podman", "docker"]
+    cmd = str(check_cmds(cmds))
+    mount_path = str(test_root)
+    podman_cmd = [
+        cmd,
+        "run",
+        f"--volume={mount_path}:/testdir",
+        "--privileged",
+        test_image,
+    ]
+    ret = subprocess.run(
+        podman_cmd,
         universal_newlines=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
