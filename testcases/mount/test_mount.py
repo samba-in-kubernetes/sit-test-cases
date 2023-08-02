@@ -11,6 +11,7 @@ import typing
 import shutil
 
 from .mount_io import check_io_consistency
+from .mount_dbm import check_dbm_consistency
 
 # Use a global test_info to get a better output when running pytest
 test_info: typing.Dict[str, typing.Any] = {}
@@ -28,6 +29,7 @@ def mount_check(ipaddr: str, share_name: str) -> None:
         test_dir = mount_point + "/mount_test"
         os.mkdir(test_dir)
         check_io_consistency(test_dir)
+        check_dbm_consistency(test_dir)
     finally:
         if flag_mounted:
             shutil.rmtree(test_dir, ignore_errors=True)
