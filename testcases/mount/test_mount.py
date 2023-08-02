@@ -11,8 +11,6 @@ import typing
 
 from .mount_io import check_io_consistency
 
-test_string = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-
 # Use a global test_info to get a better output when running pytest
 test_info: typing.Dict[str, typing.Any] = {}
 
@@ -26,13 +24,8 @@ def mount_check(ipaddr: str, share_name: str) -> None:
     try:
         testhelper.cifs_mount(mount_params, mount_point)
         flag_mounted = True
-        test_file = testhelper.get_tmp_file(mount_point)
-        with open(test_file, "w") as f:
-            f.write(test_string)
         check_io_consistency(mount_point)
     finally:
-        if os.path.exists(test_file):
-            os.unlink(test_file)
         if flag_mounted:
             testhelper.cifs_umount(mount_point)
         os.rmdir(mount_point)
