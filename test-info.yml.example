@@ -13,4 +13,4 @@ test_users:
   - {"username": "test1", "password": "x"}
   - {"username": "test2", "password": "x"}
 
-
+test_backend: glusterfs
