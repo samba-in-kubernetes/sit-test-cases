@@ -48,7 +48,16 @@ def smbtorture(share_name: str, test: str, tmp_output: str) -> bool:
         filter_subunit_cmd.append(
             "--expected-failures=" + script_root + "/selftest/" + filter
         )
-    for filter in ["flapping", "flapping.d", "flapping.gluster"]:
+    flapping_list = ["flapping", "flapping.d"]
+    test_backend = test_info.get("test_backend")
+    if test_backend is not None:
+        flapping_file = "flapping." + test_backend
+        flapping_file_path = os.path.join(
+            script_root, "selftest", flapping_file
+        )
+        if os.path.exists(flapping_file_path):
+            flapping_list.append(flapping_file)
+    for filter in flapping_list:
         filter_subunit_cmd.append(
             "--flapping=" + script_root + "/selftest/" + filter
         )
