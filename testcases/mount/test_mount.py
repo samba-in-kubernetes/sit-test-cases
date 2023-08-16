@@ -8,6 +8,7 @@ import os
 import sys
 import pytest
 import typing
+import shutil
 
 from .mount_io import check_io_consistency
 
@@ -24,9 +25,12 @@ def mount_check(ipaddr: str, share_name: str) -> None:
     try:
         testhelper.cifs_mount(mount_params, mount_point)
         flag_mounted = True
-        check_io_consistency(mount_point)
+        test_dir = mount_point + "/mount_test"
+        os.mkdir(test_dir)
+        check_io_consistency(test_dir)
     finally:
         if flag_mounted:
+            shutil.rmtree(test_dir, ignore_errors=True)
             testhelper.cifs_umount(mount_point)
         os.rmdir(mount_point)
         os.rmdir(tmp_root)
