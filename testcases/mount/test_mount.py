@@ -12,6 +12,7 @@ import shutil
 
 from .mount_io import check_io_consistency
 from .mount_dbm import check_dbm_consistency
+from .mount_stress import check_mnt_stress
 
 # Use a global test_info to get a better output when running pytest
 test_info: typing.Dict[str, typing.Any] = {}
@@ -30,6 +31,7 @@ def mount_check(ipaddr: str, share_name: str) -> None:
         os.mkdir(test_dir)
         check_io_consistency(test_dir)
         check_dbm_consistency(test_dir)
+        check_mnt_stress(test_dir)
     finally:
         if flag_mounted:
             shutil.rmtree(test_dir, ignore_errors=True)
