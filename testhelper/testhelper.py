@@ -1,5 +1,6 @@
 import yaml
 import typing
+import random
 
 
 def read_yaml(file: str) -> dict:
@@ -115,3 +116,24 @@ def get_share(test_info: dict, share_num: int) -> str:
     str: exported sharename in index share_num
     """
     return test_info["exported_sharenames"][share_num]
+
+
+def generate_random_bytes(size: int) -> bytes:
+    """
+    Creates bytes-sequence filled with random values.
+
+    In order to avoid exhausting random pool (which causes high CPU usage)
+    re-use the first page of current random buffer to re-construct larger
+    one, thus creating only "pseudo" random bytes instead of true random.
+
+    Needed because random.randbytes() is available only in Python>=3.9.
+    """
+    rbytes = bytearray(0)
+    while len(rbytes) < size:
+        rnd = random.randint(0, 0xFFFFFFFFFFFFFFFF)
+        rba = bytearray(rnd.to_bytes(8, "big"))
+        if len(rbytes) < 4096:
+            rbytes = rbytes + rba
+        else:
+            rbytes = rba + rbytes + rba + rbytes
+    return rbytes[:size]

@@ -4,9 +4,10 @@
 
 import datetime
 import pathlib
-import random
 import shutil
 import typing
+import testhelper
+import random
 
 
 class DataPath:
@@ -15,10 +16,10 @@ class DataPath:
     def __init__(self, path: pathlib.Path, size: int) -> None:
         self.path = path
         self.size = size
-        self.data = _generate_random_bytes(size)
+        self.data = testhelper.generate_random_bytes(size)
 
     def renew(self) -> None:
-        self.data = _generate_random_bytes(self.size)
+        self.data = testhelper.generate_random_bytes(self.size)
 
     def write(self) -> None:
         self.path.write_bytes(self.data)
@@ -120,27 +121,6 @@ def _check_io_consistency(rootdir: str) -> None:
     finally:
         if base:
             shutil.rmtree(base, ignore_errors=True)
-
-
-def _generate_random_bytes(size: int) -> bytes:
-    """
-    Creates bytes-sequence filled with random values.
-
-    In order to avoid exhausting random pool (which causes high CPU usage)
-    re-use the first page of current random buffer to re-construct larger
-    one, thus creating only "pseudo" random bytes instead of true random.
-
-    Needed because random.randbytes() is available only in Python>=3.9.
-    """
-    rbytes = bytearray(0)
-    while len(rbytes) < size:
-        rnd = random.randint(0, 0xFFFFFFFFFFFFFFFF)
-        rba = bytearray(rnd.to_bytes(8, "big"))
-        if len(rbytes) < 4096:
-            rbytes = rbytes + rba
-        else:
-            rbytes = rba + rbytes + rba + rbytes
-    return rbytes[:size]
 
 
 def _reset_random_seed() -> None:
