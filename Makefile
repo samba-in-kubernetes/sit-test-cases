@@ -10,13 +10,13 @@ define runtox
 	@cd "$(ROOT_DIR)" && tox -e $1
 endef
 
+.PHONY: test
 test:
-	@pytest -v `cat testcases/tests|sed 's/^/testcases\//'`
+	$(call runtox, "pytest")
 
+.PHONY: sanity_test
 sanity_test:
-	@pytest -v testcases/consistency
-
-.PHONY: test sanity_test
+	$(call runtox, "sanity")
 
 .PHONY: check-mypy
 check-mypy:

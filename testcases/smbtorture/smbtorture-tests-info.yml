@@ -15,8 +15,6 @@
 #- smb2.multichannel
 - smb2.notify-inotify
 - smb2.rename
-# https://github.com/gluster/samba-integration/issues/187
-#- smb2.replay
 - smb2.sdread
 - smb2.secleak
 - smb2.session-id
