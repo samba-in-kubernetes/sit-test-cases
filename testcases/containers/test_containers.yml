@@ -1,0 +1,3 @@
+---
+- name: "smallfiles"
+  url: "quay.io/samba.org/sit-test-cases:smallfiles"
