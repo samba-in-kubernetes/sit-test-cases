@@ -5,7 +5,6 @@
 
 import testhelper
 import os
-import sys
 import pytest
 import typing
 import shutil
@@ -57,14 +56,3 @@ def generate_mount_check(
 )
 def test_mount(ipaddr: str, share_name: str) -> None:
     mount_check(ipaddr, share_name)
-
-
-if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: %s <test-info.yml>" % (sys.argv[0]))
-        exit(1)
-    test_info_file = sys.argv[1]
-    print("Running mount check:")
-    for ipaddr, share_name in generate_mount_check(test_info_file):
-        print("%s - %s" % (ipaddr, share_name))
-        mount_check(ipaddr, share_name)

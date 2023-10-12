@@ -3,7 +3,6 @@
 # Run smbtorture tests
 
 import testhelper
-import sys
 import os
 import yaml
 import pytest
@@ -140,15 +139,3 @@ def test_smbtorture(share_name: str, test: str) -> None:
         os.unlink(output)
     if not ret:
         pytest.fail("Failure in running test - %s" % (test), pytrace=False)
-
-
-if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: %s <test-info.yml>" % (sys.argv[0]))
-        exit(1)
-
-    test_info_file = sys.argv[1]
-    print("Running smbtorture test:")
-    for share_name, test in generate_smbtorture_tests(test_info_file):
-        print(share_name + " - " + test)
-        test_smbtorture(share_name, test)

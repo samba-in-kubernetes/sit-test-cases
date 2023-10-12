@@ -8,7 +8,6 @@
 
 import testhelper
 import os
-import sys
 import pytest
 import typing
 
@@ -77,20 +76,5 @@ def test_consistency(ipaddr: str, share_name: str) -> None:
     tmp_root = testhelper.get_tmp_root()
     mount_point = testhelper.get_tmp_mount_point(tmp_root)
     consistency_check(mount_point, ipaddr, share_name)
-    os.rmdir(mount_point)
-    os.rmdir(tmp_root)
-
-
-if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: %s <test-info.yml>" % (sys.argv[0]))
-        exit(1)
-    test_info_file = sys.argv[1]
-    tmp_root = testhelper.get_tmp_root()
-    mount_point = testhelper.get_tmp_mount_point(tmp_root)
-    print("Running consistency check:")
-    for ipaddr, share_name in generate_consistency_check(test_info_file):
-        print("%s - %s" % (ipaddr, share_name))
-        consistency_check(mount_point, ipaddr, share_name)
     os.rmdir(mount_point)
     os.rmdir(tmp_root)
