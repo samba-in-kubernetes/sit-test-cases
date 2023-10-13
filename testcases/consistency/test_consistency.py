@@ -11,10 +11,10 @@ import os
 import pytest
 import typing
 
-test_string = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 
-# Use a global test_info to get a better output when running pytest
-test_info: typing.Dict[str, typing.Any] = {}
+test_string = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+test_info = os.getenv("TEST_INFO_FILE")
+test_info_dict = testhelper.read_yaml(test_info)
 
 
 def file_content_check(f: typing.IO, comp_str: str) -> bool:
@@ -23,7 +23,7 @@ def file_content_check(f: typing.IO, comp_str: str) -> bool:
 
 
 def consistency_check(mount_point: str, ipaddr: str, share_name: str) -> None:
-    mount_params = testhelper.get_mount_parameters(test_info, share_name)
+    mount_params = testhelper.get_mount_parameters(test_info_dict, share_name)
     mount_params["host"] = ipaddr
     try:
         test_file = testhelper.get_tmp_file(mount_point)
@@ -55,22 +55,19 @@ def consistency_check(mount_point: str, ipaddr: str, share_name: str) -> None:
 
 
 def generate_consistency_check(
-    test_info_file: typing.Optional[str],
+    test_info_file: dict,
 ) -> typing.List[typing.Tuple[str, str]]:
-    global test_info
     if not test_info_file:
         return []
-    test_info = testhelper.read_yaml(test_info_file)
     arr = []
-    for ipaddr in test_info["public_interfaces"]:
-        for share_name in test_info["exported_sharenames"]:
+    for ipaddr in test_info_file["public_interfaces"]:
+        for share_name in test_info_file["exported_sharenames"]:
             arr.append((ipaddr, share_name))
     return arr
 
 
 @pytest.mark.parametrize(
-    "ipaddr,share_name",
-    generate_consistency_check(os.getenv("TEST_INFO_FILE")),
+    "ipaddr,share_name", generate_consistency_check(test_info_dict)
 )
 def test_consistency(ipaddr: str, share_name: str) -> None:
     tmp_root = testhelper.get_tmp_root()

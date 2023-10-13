@@ -3,16 +3,16 @@ import typing
 import random
 
 
-def read_yaml(file: str) -> dict:
+def read_yaml(test_info):
     """Returns a dict containing the contents of the yaml file.
 
     Parameters:
-    arg1: filename of yaml file
+    test_info: filename of yaml file.
 
     Returns:
-    dict: parsed contents of a yaml file
+    dict: The parsed test information yml as a dictionary.
     """
-    with open(file) as f:
+    with open(test_info) as f:
         test_info = yaml.load(f, Loader=yaml.FullLoader)
     return test_info
 
@@ -81,7 +81,7 @@ def get_mount_parameters(
     share: The share for which to get the mount_params
     combonum: The combination number to use.
     """
-    if combonum > get_total_mount_parameter_combinations(test_info):
+    if combonum >= get_total_mount_parameter_combinations(test_info):
         assert False, "Invalid combination number"
     num_public = int(combonum / len(test_info["test_users"]))
     num_users = combonum % len(test_info["test_users"])
@@ -113,7 +113,7 @@ def get_share(test_info: dict, share_num: int) -> str:
     share_num: The index within the exported sharenames list
 
     Returns:
-    str: exported sharename in index share_num
+    str: exported sharename at index share_num
     """
     return test_info["exported_sharenames"][share_num]
 
