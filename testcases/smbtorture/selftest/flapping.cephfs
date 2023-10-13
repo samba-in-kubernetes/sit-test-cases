@@ -1,0 +1,2 @@
+# https://github.com/samba-in-kubernetes/sit-test-cases/issues/35
+^samba3.smb2.rw.invalid
