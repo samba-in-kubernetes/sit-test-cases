@@ -25,7 +25,7 @@ def mount_check(ipaddr: str, share_name: str) -> None:
     try:
         testhelper.cifs_mount(mount_params, mount_point)
         flag_mounted = True
-        test_dir = mount_point + "/mount_test"
+        test_dir = os.path.join(mount_point, "mount_test")
         os.mkdir(test_dir)
         check_io_consistency(test_dir)
         check_dbm_consistency(test_dir)
