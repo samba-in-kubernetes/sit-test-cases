@@ -3,16 +3,16 @@ import typing
 import random
 
 
-def read_yaml(file: str) -> dict:
+def read_yaml(test_info):
     """Returns a dict containing the contents of the yaml file.
 
     Parameters:
-    arg1: filename of yaml file
+    test_info: filename of yaml file.
 
     Returns:
-    dict: parsed contents of a yaml file
+    dict: The parsed test information yml as a dictionary.
     """
-    with open(file) as f:
+    with open(test_info) as f:
         test_info = yaml.load(f, Loader=yaml.FullLoader)
     return test_info
 
@@ -81,7 +81,7 @@ def get_mount_parameters(
     share: The share for which to get the mount_params
     combonum: The combination number to use.
     """
-    if combonum > get_total_mount_parameter_combinations(test_info):
+    if combonum >= get_total_mount_parameter_combinations(test_info):
         assert False, "Invalid combination number"
     num_public = int(combonum / len(test_info["test_users"]))
     num_users = combonum % len(test_info["test_users"])
@@ -113,27 +113,26 @@ def get_share(test_info: dict, share_num: int) -> str:
     share_num: The index within the exported sharenames list
 
     Returns:
-    str: exported sharename in index share_num
+    str: exported sharename at index share_num
     """
     return test_info["exported_sharenames"][share_num]
 
 
 def generate_random_bytes(size: int) -> bytes:
     """
-    Creates bytes-sequence filled with random values.
+    Creates sequence of semi-random bytes.
 
-    In order to avoid exhausting random pool (which causes high CPU usage)
-    re-use the first page of current random buffer to re-construct larger
-    one, thus creating only "pseudo" random bytes instead of true random.
-
-    Needed because random.randbytes() is available only in Python>=3.9.
+    A wrapper over standard 'random.randbytes()' which should be used in
+    cases where caller wants to avoid exhausting of host's random pool (which
+    may also yield high CPU usage). Uses an existing random bytes-array to
+    re-construct a new one, double in size, plus up-to 1K of newly random
+    bytes. This method creats only "pseudo" (or "semi") random bytes instead
+    of true random bytes-sequence, which should be good enough for I/O
+    integrity testings.
     """
-    rbytes = bytearray(0)
-    while len(rbytes) < size:
-        rnd = random.randint(0, 0xFFFFFFFFFFFFFFFF)
-        rba = bytearray(rnd.to_bytes(8, "big"))
-        if len(rbytes) < 4096:
-            rbytes = rbytes + rba
-        else:
-            rbytes = rba + rbytes + rba + rbytes
-    return rbytes[:size]
+    rba = bytearray(random.randbytes(min(size, 1024)))
+    while len(rba) < size:
+        rem = size - len(rba)
+        rnd = bytearray(random.randbytes(min(rem, 1024)))
+        rba = rba + rnd + rba
+    return rba[:size]
