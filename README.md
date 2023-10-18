@@ -10,8 +10,8 @@ The tests are designed to run against any SMB server. The only
 prerequisite is that we have a SMB server exporting a filesystem which
 can be accessed over the network.
 Refer:
-[server_setup](https://wiki.samba.org/index.php/Setting_up_Samba_as_a_Standalone_Server)
-[filesytem_export_with_glusterfs](https://wiki.samba.org/index.php/Samba_CTDB_GlusterFS_Cluster_HowTo)
+- [Server setup](https://wiki.samba.org/index.php/Setting_up_Samba_as_a_Standalone_Server)
+- [Filesystem export with glusterfs](https://wiki.samba.org/index.php/Samba_CTDB_GlusterFS_Cluster_HowTo)
 
 ### Quick guide on running the test-cases:
 - Install sit-test-cases
@@ -43,9 +43,8 @@ Refer:
 - Run individual test cases(can be used for debugging):
   ```
       $ pwd
-      $ /path/to/repo/sit-test-cases
-
-      $ PYTHONPATH=`pwd` TESTINFO_FILE=test-info.yml pytest -v testcases/smbtorture
+      /path/to/repo/sit-test-cases
+      $ PYTHONPATH=`pwd` TEST_INFO_FILE=test-info.yml pytest -v testcases/smbtorture
   ```
 
 NOTE:
