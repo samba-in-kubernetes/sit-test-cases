@@ -1,6 +1,7 @@
 import yaml
 import typing
 import random
+from pathlib import Path
 
 
 def read_yaml(test_info):
@@ -136,3 +137,16 @@ def generate_random_bytes(size: int) -> bytes:
         rnd = bytearray(random.randbytes(min(rem, 1024)))
         rba = rba + rnd + rba
     return rba[:size]
+
+
+def get_premounted_shares(test_info: dict) -> typing.List[Path]:
+    """
+    Get list of premounted shares
+
+    Parameters:
+    None
+    Returns:
+    list of paths with shares
+    """
+    premounted_shares = test_info.get("premounted_shares", [])
+    return [Path(mnt) for mnt in premounted_shares]

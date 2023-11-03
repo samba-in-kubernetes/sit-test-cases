@@ -14,3 +14,7 @@ test_users:
   - {"username": "test2", "password": "x"}
 
 test_backend: glusterfs
+
+premounted_shares:
+  - "/testdir1"
+  - "/testdir2"
