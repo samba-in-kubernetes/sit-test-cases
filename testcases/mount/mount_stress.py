@@ -1,16 +1,15 @@
 import threading
 import testhelper
-import pathlib
+from pathlib import Path
 
 
 def _perform_file_operations(
-    client_id: int, root_dir: str, num_operations: int, file_size: int
+    client_id: int, root_dir: Path, num_operations: int, file_size: int
 ) -> None:
     try:
         for i in range(num_operations):
-            filename = f"testfile_{client_id}_{i}.txt"
             file_content = testhelper.generate_random_bytes(file_size)
-            path = pathlib.Path(root_dir, filename)
+            path = root_dir / f"testfile_{client_id}_{i}.txt"
             path.write_bytes(file_content)
             file_content_out = path.read_bytes()
 
@@ -24,7 +23,7 @@ def _perform_file_operations(
 
 
 def _stress_test(
-    root_dir: str, num_clients: int, num_operations: int, file_size: int
+    root_dir: Path, num_clients: int, num_operations: int, file_size: int
 ) -> None:
     threads = []
 
@@ -44,7 +43,7 @@ def _stress_test(
     print("Stress test complete.")
 
 
-def check_mnt_stress(root_dir: str) -> None:
+def check_mnt_stress(root_dir: Path) -> None:
     _stress_test(root_dir, num_clients=5, num_operations=20, file_size=2**22)
     _stress_test(
         root_dir, num_clients=10, num_operations=30, file_size=2**23

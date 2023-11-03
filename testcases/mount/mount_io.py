@@ -3,17 +3,17 @@
 # Test various file-system I/O operations via local SMB mount-point.
 
 import datetime
-import pathlib
 import shutil
 import typing
 import testhelper
 import random
+from pathlib import Path
 
 
 class DataPath:
     """A pair of random data-buffer and path-name to its regular file"""
 
-    def __init__(self, path: pathlib.Path, size: int) -> None:
+    def __init__(self, path: Path, size: int) -> None:
         self.path = path
         self.size = size
         self.data = testhelper.generate_random_bytes(size)
@@ -70,17 +70,15 @@ class DataPath:
             raise IOError(f"still exists: {self.path}")
 
 
-def _make_pathname(base: pathlib.Path, idx: int) -> pathlib.Path:
+def _make_pathname(base: Path, idx: int) -> Path:
     return base / str(idx)
 
 
-def _make_datapath(base: pathlib.Path, idx: int, size: int) -> DataPath:
+def _make_datapath(base: Path, idx: int, size: int) -> DataPath:
     return DataPath(_make_pathname(base, idx), size)
 
 
-def _make_datasets(
-    base: pathlib.Path, size: int, count: int
-) -> typing.List[DataPath]:
+def _make_datasets(base: Path, size: int, count: int) -> typing.List[DataPath]:
     return [_make_datapath(base, idx, size) for idx in range(0, count)]
 
 
@@ -101,11 +99,11 @@ def _run_checks(dsets: typing.List[DataPath]) -> None:
         dset.verify_noent()
 
 
-def _check_io_consistency(rootdir: str) -> None:
+def _check_io_consistency(rootdir: Path) -> None:
     base = None
     try:
         print("\n")
-        base = pathlib.Path(rootdir) / "test_io_consistency"
+        base = rootdir / "test_io_consistency"
         base.mkdir(parents=True)
         # Case-1: single 4K file
         _run_checks(_make_datasets(base, 4096, 1))
@@ -129,6 +127,6 @@ def _reset_random_seed() -> None:
     random.seed(seed)
 
 
-def check_io_consistency(rootdir: str) -> None:
+def check_io_consistency(rootdir: Path) -> None:
     _reset_random_seed()
     _check_io_consistency(rootdir)

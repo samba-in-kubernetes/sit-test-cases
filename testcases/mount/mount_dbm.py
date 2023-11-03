@@ -4,10 +4,10 @@
 import dbm
 import hashlib
 import pickle
-import pathlib
 import shutil
 import typing
 import random
+from pathlib import Path
 
 
 class Record:
@@ -43,7 +43,7 @@ def _check_equal(rec1: Record, rec2: Record) -> None:
 
 
 class Database:
-    def __init__(self, path: pathlib.Path) -> None:
+    def __init__(self, path: Path) -> None:
         self.path = path
 
     def create(self) -> None:
@@ -70,7 +70,7 @@ def _make_records(ikeys: typing.Iterable[int]) -> typing.List[Record]:
     return [Record(ikey) for ikey in ikeys]
 
 
-def _check_dbm_consistency(base: pathlib.Path, nrecs: int) -> None:
+def _check_dbm_consistency(base: Path, nrecs: int) -> None:
     path = base / f"dbm-{nrecs}"
     recs1 = _make_records(range(0, int(nrecs / 2)))
     recs2 = _make_records(range(int(nrecs / 2), nrecs))
@@ -89,8 +89,8 @@ def _check_dbm_consistency(base: pathlib.Path, nrecs: int) -> None:
         db.destroy()
 
 
-def check_dbm_consistency(rootdir: str) -> None:
-    base = pathlib.Path(rootdir) / "dbm-consistency"
+def check_dbm_consistency(rootdir: Path) -> None:
+    base = rootdir / "dbm-consistency"
     base.mkdir(parents=True, exist_ok=True)
     try:
         _check_dbm_consistency(base, 10)

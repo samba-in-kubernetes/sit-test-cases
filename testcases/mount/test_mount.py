@@ -8,17 +8,29 @@ import os
 import pytest
 import typing
 import shutil
+from pathlib import Path
 
 from .mount_io import check_io_consistency
 from .mount_dbm import check_dbm_consistency
 from .mount_stress import check_mnt_stress
 
-test_info = os.getenv("TEST_INFO_FILE")
-test_info_dict = testhelper.read_yaml(test_info)
+test_info_file = os.getenv("TEST_INFO_FILE")
+test_info = testhelper.read_yaml(test_info_file)
+
+
+def mount_check_mounted(mount_point: Path) -> None:
+    try:
+        test_dir = mount_point / "mount_test"
+        test_dir.mkdir()
+        check_io_consistency(test_dir)
+        check_dbm_consistency(test_dir)
+        check_mnt_stress(test_dir)
+    finally:
+        shutil.rmtree(test_dir, ignore_errors=True)
 
 
 def mount_check(ipaddr: str, share_name: str) -> None:
-    mount_params = testhelper.get_mount_parameters(test_info_dict, share_name)
+    mount_params = testhelper.get_mount_parameters(test_info, share_name)
     mount_params["host"] = ipaddr
     tmp_root = testhelper.get_tmp_root()
     mount_point = testhelper.get_tmp_mount_point(tmp_root)
@@ -26,33 +38,33 @@ def mount_check(ipaddr: str, share_name: str) -> None:
     try:
         testhelper.cifs_mount(mount_params, mount_point)
         flag_mounted = True
-        test_dir = os.path.join(mount_point, "mount_test")
-        os.mkdir(test_dir)
-        check_io_consistency(test_dir)
-        check_dbm_consistency(test_dir)
-        check_mnt_stress(test_dir)
+        mount_check_mounted(Path(mount_point))
     finally:
         if flag_mounted:
-            shutil.rmtree(test_dir, ignore_errors=True)
             testhelper.cifs_umount(mount_point)
         os.rmdir(mount_point)
         os.rmdir(tmp_root)
 
 
-def generate_mount_check(
-    test_info_file: dict,
-) -> typing.List[typing.Tuple[str, str]]:
-    if not test_info_file:
-        return []
+def generate_mount_check() -> typing.List[typing.Tuple[str, str]]:
+    public_interfaces = test_info.get("public_interfaces", [])
+    exported_sharenames = test_info.get("exported_sharenames", [])
     arr = []
-    for ipaddr in test_info_file["public_interfaces"]:
-        for share_name in test_info_file["exported_sharenames"]:
+    for ipaddr in public_interfaces:
+        for share_name in exported_sharenames:
             arr.append((ipaddr, share_name))
     return arr
 
 
-@pytest.mark.parametrize(
-    "ipaddr,share_name", generate_mount_check(test_info_dict)
-)
+@pytest.mark.parametrize("ipaddr,share_name", generate_mount_check())
 def test_mount(ipaddr: str, share_name: str) -> None:
     mount_check(ipaddr, share_name)
+
+
+def generate_mount_check_premounted() -> typing.List[Path]:
+    return testhelper.get_premounted_shares(test_info)
+
+
+@pytest.mark.parametrize("test_dir", generate_mount_check_premounted())
+def test_mount_premounted(test_dir: Path) -> None:
+    mount_check_mounted(test_dir)
