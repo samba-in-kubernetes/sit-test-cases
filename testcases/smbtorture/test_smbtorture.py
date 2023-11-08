@@ -15,8 +15,8 @@ filter_subunit_exec = script_root + "/selftest/filter-subunit"
 format_subunit_exec = script_root + "/selftest/format-subunit"
 smbtorture_tests_file = script_root + "/smbtorture-tests-info.yml"
 
-test_info = os.getenv("TEST_INFO_FILE")
-test_info_dict = testhelper.read_yaml(test_info)
+test_info_file = os.getenv("TEST_INFO_FILE")
+test_info = testhelper.read_yaml(test_info_file)
 
 # Temp filename containing the output of run commands.
 output = testhelper.get_tmp_file("/tmp")
@@ -24,7 +24,7 @@ output = testhelper.get_tmp_file("/tmp")
 
 def smbtorture(share_name: str, test: str, tmp_output: str) -> bool:
     # build smbtorture command
-    mount_params = testhelper.get_mount_parameters(test_info_dict, share_name)
+    mount_params = testhelper.get_mount_parameters(test_info, share_name)
     smbtorture_cmd = [
         smbtorture_exec,
         "--fullname",
@@ -50,7 +50,7 @@ def smbtorture(share_name: str, test: str, tmp_output: str) -> bool:
             "--expected-failures=" + script_root + "/selftest/" + filter
         )
     flapping_list = ["flapping", "flapping.d"]
-    test_backend = test_info_dict.get("test_backend")
+    test_backend = test_info.get("test_backend")
     if test_backend is not None:
         flapping_file = "flapping." + test_backend
         flapping_file_path = os.path.join(
@@ -119,8 +119,7 @@ def list_smbtorture_tests():
 def generate_smbtorture_tests() -> typing.List[typing.Tuple[str, str]]:
     smbtorture_info = list_smbtorture_tests()
     arr = []
-    for sharenum in range(testhelper.get_num_shares(test_info_dict)):
-        share_name = testhelper.get_share(test_info_dict, sharenum)
+    for share_name in test_info.get("exported_sharenames", []):
         for torture_test in smbtorture_info:
             arr.append((share_name, torture_test))
     return arr
