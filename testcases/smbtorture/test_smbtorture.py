@@ -8,6 +8,7 @@ import yaml
 import pytest
 import typing
 import subprocess
+from pathlib import Path
 
 script_root = os.path.dirname(os.path.realpath(__file__))
 smbtorture_exec = "/bin/smbtorture"
@@ -19,10 +20,10 @@ test_info_file = os.getenv("TEST_INFO_FILE")
 test_info = testhelper.read_yaml(test_info_file)
 
 # Temp filename containing the output of run commands.
-output = testhelper.get_tmp_file("/tmp")
+output = testhelper.get_tmp_file(Path("/tmp"))
 
 
-def smbtorture(share_name: str, test: str, tmp_output: str) -> bool:
+def smbtorture(share_name: str, test: str, tmp_output: Path) -> bool:
     # build smbtorture command
     mount_params = testhelper.get_mount_parameters(test_info, share_name)
     smbtorture_cmd = [

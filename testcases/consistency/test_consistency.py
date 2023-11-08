@@ -10,11 +10,12 @@ import testhelper
 import os
 import pytest
 import typing
+from pathlib import Path
 
 
 test_string = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-test_info = os.getenv("TEST_INFO_FILE")
-test_info_dict = testhelper.read_yaml(test_info)
+test_info_file = os.getenv("TEST_INFO_FILE")
+test_info = testhelper.read_yaml(test_info_file)
 
 
 def file_content_check(f: typing.IO, comp_str: str) -> bool:
@@ -22,12 +23,12 @@ def file_content_check(f: typing.IO, comp_str: str) -> bool:
     return read_data == comp_str
 
 
-def consistency_check(mount_point: str, ipaddr: str, share_name: str) -> None:
-    mount_params = testhelper.get_mount_parameters(test_info_dict, share_name)
+def consistency_check(mount_point: Path, ipaddr: str, share_name: str) -> None:
+    mount_params = testhelper.get_mount_parameters(test_info, share_name)
     mount_params["host"] = ipaddr
     try:
         test_file = testhelper.get_tmp_file(mount_point)
-        test_file_resp = test_file + ".resp"
+        test_file_resp = test_file.with_suffix(".resp")
         test_file_remote = "test-" + ipaddr + "." + share_name
         with open(test_file, "w") as f:
             f.write(test_string)
@@ -48,10 +49,10 @@ def consistency_check(mount_point: str, ipaddr: str, share_name: str) -> None:
                 f, test_string
             ), "File content does not match"
     finally:
-        if os.path.exists(test_file):
-            os.unlink(test_file)
-        if os.path.exists(test_file_resp):
-            os.unlink(test_file_resp)
+        if test_file.exists():
+            test_file.unlink()
+        if test_file_resp.exists():
+            test_file_resp.unlink()
 
 
 def generate_consistency_check(
@@ -67,7 +68,7 @@ def generate_consistency_check(
 
 
 @pytest.mark.parametrize(
-    "ipaddr,share_name", generate_consistency_check(test_info_dict)
+    "ipaddr,share_name", generate_consistency_check(test_info)
 )
 def test_consistency(ipaddr: str, share_name: str) -> None:
     tmp_root = testhelper.get_tmp_root()

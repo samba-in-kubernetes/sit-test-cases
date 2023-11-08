@@ -54,13 +54,13 @@ def containers_check_mounted(mount_point: Path, test: str) -> None:
 def containers_check(ipaddr: str, share_name: str, test: str) -> None:
     mount_params = testhelper.get_mount_parameters(test_info, share_name)
     mount_params["host"] = ipaddr
-    tmp_root = Path(testhelper.get_tmp_root())
-    mount_point = Path(testhelper.get_tmp_mount_point(str(tmp_root)))
-    testhelper.cifs_mount(mount_params, str(mount_point))
+    tmp_root = testhelper.get_tmp_root()
+    mount_point = testhelper.get_tmp_mount_point(tmp_root)
+    testhelper.cifs_mount(mount_params, mount_point)
     try:
         containers_check_mounted(mount_point, test)
     finally:
-        testhelper.cifs_umount(str(mount_point))
+        testhelper.cifs_umount(mount_point)
         mount_point.rmdir()
         tmp_root.rmdir()
 
