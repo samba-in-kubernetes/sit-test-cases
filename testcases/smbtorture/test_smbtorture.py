@@ -20,7 +20,7 @@ test_info_file = os.getenv("TEST_INFO_FILE")
 test_info = testhelper.read_yaml(test_info_file)
 
 # Temp filename containing the output of run commands.
-output = testhelper.get_tmp_file(Path("/tmp"))
+output = testhelper.get_tmp_file()
 
 
 def smbtorture(share_name: str, test: str, tmp_output: Path) -> bool:
