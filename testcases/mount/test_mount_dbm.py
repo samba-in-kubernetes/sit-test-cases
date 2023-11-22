@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # Test various database operations via SMB mount-point.
 
+import pytest
 import dbm
 import hashlib
 import pickle
@@ -8,6 +9,7 @@ import shutil
 import typing
 import random
 from pathlib import Path
+from .conftest import generate_mount_check, generate_mount_check_premounted
 
 
 class Record:
@@ -89,12 +91,23 @@ def _check_dbm_consistency(base: Path, nrecs: int) -> None:
         db.destroy()
 
 
-def check_dbm_consistency(rootdir: Path) -> None:
-    base = rootdir / "dbm-consistency"
-    base.mkdir(parents=True, exist_ok=True)
+def _run_dbm_consistency_checks(base_path: Path) -> None:
+    base_path.mkdir(parents=True, exist_ok=True)
     try:
-        _check_dbm_consistency(base, 10)
-        _check_dbm_consistency(base, 100)
-        _check_dbm_consistency(base, 10000)
+        _check_dbm_consistency(base_path, 10)
+        _check_dbm_consistency(base_path, 100)
+        _check_dbm_consistency(base_path, 10000)
     finally:
-        shutil.rmtree(base, ignore_errors=True)
+        shutil.rmtree(base_path, ignore_errors=True)
+
+
+@pytest.mark.parametrize("setup_mount", generate_mount_check(), indirect=True)
+def test_dbm_consistency(setup_mount: Path) -> None:
+    base = setup_mount / "dbm-consistency"
+    _run_dbm_consistency_checks(base)
+
+
+@pytest.mark.parametrize("test_dir", generate_mount_check_premounted())
+def test_dbm_consistency_premounted(test_dir: Path) -> None:
+    base = test_dir / "dbm-consistency"
+    _run_dbm_consistency_checks(base)

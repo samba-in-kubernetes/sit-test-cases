@@ -2,12 +2,14 @@
 
 # Test various file-system I/O operations via local SMB mount-point.
 
+import pytest
 import datetime
 import shutil
 import typing
 import testhelper
 import random
 from pathlib import Path
+from .conftest import generate_mount_check, generate_mount_check_premounted
 
 
 class DataPath:
@@ -99,11 +101,11 @@ def _run_checks(dsets: typing.List[DataPath]) -> None:
         dset.verify_noent()
 
 
-def _check_io_consistency(rootdir: Path) -> None:
+def _check_io_consistency(test_dir: Path) -> None:
     base = None
     try:
         print("\n")
-        base = rootdir / "test_io_consistency"
+        base = test_dir / "test_io_consistency"
         base.mkdir(parents=True)
         # Case-1: single 4K file
         _run_checks(_make_datasets(base, 4096, 1))
@@ -127,6 +129,16 @@ def _reset_random_seed() -> None:
     random.seed(seed)
 
 
-def check_io_consistency(rootdir: Path) -> None:
+def _perform_io_consistency_check(directory: Path) -> None:
     _reset_random_seed()
-    _check_io_consistency(rootdir)
+    _check_io_consistency(directory)
+
+
+@pytest.mark.parametrize("setup_mount", generate_mount_check(), indirect=True)
+def test_check_io_consistency(setup_mount: Path) -> None:
+    _perform_io_consistency_check(setup_mount)
+
+
+@pytest.mark.parametrize("test_dir", generate_mount_check_premounted())
+def test_check_io_consistency_premounted(test_dir: Path) -> None:
+    _perform_io_consistency_check(test_dir)
