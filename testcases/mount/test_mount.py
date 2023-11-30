@@ -14,9 +14,6 @@ from .mount_io import check_io_consistency
 from .mount_dbm import check_dbm_consistency
 from .mount_stress import check_mnt_stress
 
-test_info_file = os.getenv("TEST_INFO_FILE")
-test_info = testhelper.read_yaml(test_info_file)
-
 
 def mount_check_mounted(mount_point: Path) -> None:
     try:
@@ -30,7 +27,7 @@ def mount_check_mounted(mount_point: Path) -> None:
 
 
 def mount_check(ipaddr: str, share_name: str) -> None:
-    mount_params = testhelper.get_mount_parameters(test_info, share_name)
+    mount_params = testhelper.get_mount_parameters(share_name)
     mount_params["host"] = ipaddr
     tmp_root = testhelper.get_tmp_root()
     mount_point = testhelper.get_tmp_mount_point(tmp_root)
@@ -46,23 +43,15 @@ def mount_check(ipaddr: str, share_name: str) -> None:
         os.rmdir(tmp_root)
 
 
-def generate_mount_check() -> typing.List[typing.Tuple[str, str]]:
-    public_interfaces = test_info.get("public_interfaces", [])
-    exported_sharenames = test_info.get("exported_sharenames", [])
-    arr = []
-    for ipaddr in public_interfaces:
-        for share_name in exported_sharenames:
-            arr.append((ipaddr, share_name))
-    return arr
-
-
-@pytest.mark.parametrize("ipaddr,share_name", generate_mount_check())
+@pytest.mark.parametrize(
+    "ipaddr,share_name", testhelper.generate_mount_check()
+)
 def test_mount(ipaddr: str, share_name: str) -> None:
     mount_check(ipaddr, share_name)
 
 
 def generate_mount_check_premounted() -> typing.List[Path]:
-    return testhelper.get_premounted_shares(test_info)
+    return testhelper.get_premounted_shares()
 
 
 @pytest.mark.parametrize("test_dir", generate_mount_check_premounted())

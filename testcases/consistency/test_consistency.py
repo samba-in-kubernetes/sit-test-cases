@@ -14,8 +14,6 @@ from pathlib import Path
 
 
 test_string = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-test_info_file = os.getenv("TEST_INFO_FILE")
-test_info = testhelper.read_yaml(test_info_file)
 
 
 def file_content_check(f: typing.IO, comp_str: str) -> bool:
@@ -24,7 +22,7 @@ def file_content_check(f: typing.IO, comp_str: str) -> bool:
 
 
 def consistency_check(mount_point: Path, ipaddr: str, share_name: str) -> None:
-    mount_params = testhelper.get_mount_parameters(test_info, share_name)
+    mount_params = testhelper.get_mount_parameters(share_name)
     mount_params["host"] = ipaddr
     try:
         test_file = testhelper.get_tmp_file(mount_point)
@@ -55,20 +53,8 @@ def consistency_check(mount_point: Path, ipaddr: str, share_name: str) -> None:
             test_file_resp.unlink()
 
 
-def generate_consistency_check(
-    test_info_file: dict,
-) -> typing.List[typing.Tuple[str, str]]:
-    if not test_info_file:
-        return []
-    arr = []
-    for ipaddr in test_info_file["public_interfaces"]:
-        for share_name in test_info_file["exported_sharenames"]:
-            arr.append((ipaddr, share_name))
-    return arr
-
-
 @pytest.mark.parametrize(
-    "ipaddr,share_name", generate_consistency_check(test_info)
+    "ipaddr,share_name", testhelper.generate_consistency_check()
 )
 def test_consistency(ipaddr: str, share_name: str) -> None:
     tmp_root = testhelper.get_tmp_root()

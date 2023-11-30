@@ -7,7 +7,6 @@
 # ip addresses).
 
 import testhelper
-import os
 import pytest
 import typing
 import yaml
@@ -35,7 +34,7 @@ def load_container_tests() -> int:
 
 
 # Load globals
-test_info = testhelper.read_yaml(os.getenv("TEST_INFO_FILE"))
+test_info = testhelper.read_yaml()
 assert load_container_tests() != 0, "No tests loaded"
 
 
@@ -52,7 +51,7 @@ def containers_check_mounted(mount_point: Path, test: str) -> None:
 
 
 def containers_check(ipaddr: str, share_name: str, test: str) -> None:
-    mount_params = testhelper.get_mount_parameters(test_info, share_name)
+    mount_params = testhelper.get_mount_parameters(share_name)
     mount_params["host"] = ipaddr
     tmp_root = testhelper.get_tmp_root()
     mount_point = testhelper.get_tmp_mount_point(tmp_root)

@@ -1,21 +1,22 @@
+import os
 import yaml
 import typing
 import random
 from pathlib import Path
 
 
-def read_yaml(test_info):
+def read_yaml():
     """Returns a dict containing the contents of the yaml file.
-
-    Parameters:
-    test_info: filename of yaml file.
 
     Returns:
     dict: The parsed test information yml as a dictionary.
     """
-    with open(test_info) as f:
+    with open(os.getenv("TEST_INFO_FILE")) as f:
         test_info = yaml.load(f, Loader=yaml.FullLoader)
     return test_info
+
+
+test_info = read_yaml()
 
 
 def gen_mount_params(
@@ -41,12 +42,11 @@ def gen_mount_params(
     return ret
 
 
-def get_mount_parameters(test_info: dict, share: str) -> typing.Dict[str, str]:
+def get_mount_parameters(share: str) -> typing.Dict[str, str]:
     """Get the default mount_params dict for a given share
 
     Parameters:
-    test_info: Dict containing the parsed yaml file.
-    share: The share for which to get the mount_params
+    share: The share for which to get the mount_point
     """
     return gen_mount_params(
         test_info["public_interfaces"][0],
@@ -76,7 +76,7 @@ def generate_random_bytes(size: int) -> bytes:
     return rba[:size]
 
 
-def get_premounted_shares(test_info: dict) -> typing.List[Path]:
+def get_premounted_shares() -> typing.List[Path]:
     """
     Get list of premounted shares
 
@@ -87,3 +87,21 @@ def get_premounted_shares(test_info: dict) -> typing.List[Path]:
     """
     premounted_shares = test_info.get("premounted_shares", [])
     return [Path(mnt) for mnt in premounted_shares]
+
+
+def generate_consistency_check() -> typing.List[typing.Tuple[str, str]]:
+    arr = []
+    for ipaddr in test_info["public_interfaces"]:
+        for share_name in test_info["exported_sharenames"]:
+            arr.append((ipaddr, share_name))
+    return arr
+
+
+def generate_mount_check() -> typing.List[typing.Tuple[str, str]]:
+    public_interfaces = test_info.get("public_interfaces", [])
+    exported_sharenames = test_info.get("exported_sharenames", [])
+    arr = []
+    for ipaddr in public_interfaces:
+        for share_name in exported_sharenames:
+            arr.append((ipaddr, share_name))
+    return arr

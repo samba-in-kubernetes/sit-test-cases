@@ -16,13 +16,12 @@ filter_subunit_exec = script_root + "/selftest/filter-subunit"
 format_subunit_exec = script_root + "/selftest/format-subunit"
 smbtorture_tests_file = script_root + "/smbtorture-tests-info.yml"
 
-test_info_file = os.getenv("TEST_INFO_FILE")
-test_info = testhelper.read_yaml(test_info_file)
+test_info = testhelper.read_yaml()
 
 
 def smbtorture(share_name: str, test: str, tmp_output: Path) -> bool:
     # build smbtorture command
-    mount_params = testhelper.get_mount_parameters(test_info, share_name)
+    mount_params = testhelper.get_mount_parameters(share_name)
     smbtorture_cmd = [
         smbtorture_exec,
         "--fullname",
