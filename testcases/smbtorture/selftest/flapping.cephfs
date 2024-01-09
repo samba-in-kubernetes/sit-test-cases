@@ -1,2 +1,6 @@
 # https://github.com/samba-in-kubernetes/sit-test-cases/issues/35
 ^samba3.smb2.rw.invalid
+
+# This is a known fail for samba4 env. We explicitly mark env as
+# samba3 which means we don't ever match with this knownfail.
+^samba3.smb2.create.quota-fake-file
