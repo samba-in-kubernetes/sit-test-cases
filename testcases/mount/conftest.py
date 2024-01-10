@@ -45,12 +45,14 @@ def setup_mount(
         raise Exception(f"Teardown failed: {str(e)}")
 
 
-def generate_mount_check() -> typing.List[typing.Tuple[str, str]]:
+def generate_mount_check() -> typing.List[typing.Any]:
     ipaddr = test_info["public_interfaces"][0]
     exported_sharenames = test_info.get("exported_sharenames", [])
     arr = []
     for share_name in exported_sharenames:
-        arr.append((ipaddr, share_name))
+        arr.append(
+            pytest.param((ipaddr, share_name), id=f"{ipaddr}-{share_name}")
+        )
     return arr
 
 
