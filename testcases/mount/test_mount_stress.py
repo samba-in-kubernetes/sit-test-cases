@@ -47,16 +47,7 @@ def _stress_test(
 
 def _run_stress_tests(directory: Path) -> None:
     _stress_test(
-        directory, num_clients=5, num_operations=20, file_size=2**22
-    )
-    _stress_test(
-        directory, num_clients=10, num_operations=30, file_size=2**23
-    )
-    _stress_test(
-        directory, num_clients=20, num_operations=40, file_size=2**24
-    )
-    _stress_test(
-        directory, num_clients=15, num_operations=25, file_size=2**25
+        directory, num_clients=20, num_operations=40, file_size=2**25
     )
 
 
