@@ -21,8 +21,15 @@ py-modules = [ "testcases", "testhelper" ]
 [tool.black]
 line-length = 79
 quiet = true
+force-exclude = '''
+(
+  ^/testcases/smbtorture/selftest/
+)
+'''
 
 [tool.mypy]
 disallow_incomplete_defs = true
-
+exclude = [
+    "^testcases/smbtorture/selftest",
+]
 
