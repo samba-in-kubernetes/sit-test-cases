@@ -43,7 +43,7 @@ def smbtorture(share_name: str, test: str, tmp_output: Path) -> bool:
         "--fail-on-empty",
         "--prefix=samba3.",
     ]
-    for filter in ["knownfail", "knownfail.d"]:
+    for filter in ["knownfail", "knownfail.d", "expectedfail.d"]:
         filter_subunit_cmd.append(
             "--expected-failures=" + script_root + "/selftest/" + filter
         )
