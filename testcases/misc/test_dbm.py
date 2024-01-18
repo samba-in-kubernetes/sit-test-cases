@@ -94,9 +94,10 @@ def _check_dbm_consistency(base: Path, nrecs: int) -> None:
 def _run_dbm_consistency_checks(base_path: Path) -> None:
     base_path.mkdir(parents=True, exist_ok=True)
     try:
-        _check_dbm_consistency(base_path, 10)
-        _check_dbm_consistency(base_path, 100)
-        _check_dbm_consistency(base_path, 10000)
+        test_sizes = [10, 100, 10000]
+
+        for size in test_sizes:
+            _check_dbm_consistency(base_path, size)
     finally:
         shutil.rmtree(base_path, ignore_errors=True)
 

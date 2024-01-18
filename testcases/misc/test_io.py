@@ -104,17 +104,19 @@ def _run_checks(dsets: typing.List[DataPath]) -> None:
 def _check_io_consistency(test_dir: Path) -> None:
     base = None
     try:
-        print("\n")
         base = test_dir / "test_io_consistency"
         base.mkdir(parents=True)
-        # Case-1: single 4K file
-        _run_checks(_make_datasets(base, 4096, 1))
-        # Case-2: single 16M file
-        _run_checks(_make_datasets(base, 2**24, 1))
-        # Case-3: few 1M files
-        _run_checks(_make_datasets(base, 2**20, 10))
-        # Case-4: many 1K files
-        _run_checks(_make_datasets(base, 1024, 100))
+
+        test_cases = [
+            (4096, 1),  # Case-1: single 4K file
+            (2**24, 1),  # Case-2: single 16M file
+            (2**20, 10),  # Case-3: few 1M files
+            (1024, 100),  # Case-4: many 1K files
+        ]
+
+        for size, count in test_cases:
+            datasets = _make_datasets(base, size, count)
+            _run_checks(datasets)
     except Exception as ex:
         print("Error while executing test_io_consistency: %s", ex)
         raise
