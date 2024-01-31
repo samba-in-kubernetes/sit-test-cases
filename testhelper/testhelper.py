@@ -4,17 +4,63 @@ import random
 from pathlib import Path
 
 
-def read_yaml(test_info):
+def _get_default_backend(test_info: dict) -> str:
+    return test_info.get("backend") or test_info.get("test_backend", "xfs")
+
+
+def _get_default_server(test_info: dict) -> str:
+    return (
+        test_info.get("server")
+        or test_info.get("public_interfaces", ["localhost"])[0]
+    )
+
+
+def _get_default_users(test_info: dict) -> typing.Dict[str, str]:
+    default_users = test_info.get("users", {})
+    if not default_users:
+        for user in test_info.get("test_users", []):
+            default_users[user["username"]] = user["password"]
+    return default_users
+
+
+def read_yaml(test_info_file):
     """Returns a dict containing the contents of the yaml file.
 
     Parameters:
-    test_info: filename of yaml file.
+    test_info_file: filename of yaml file.
 
     Returns:
     dict: The parsed test information yml as a dictionary.
     """
-    with open(test_info) as f:
+    with open(test_info_file) as f:
         test_info = yaml.load(f, Loader=yaml.FullLoader)
+
+    shares = test_info.get("shares", {})
+
+    # Copy exported_sharenames to shares
+    # Todo - remove once sit-environment is updated
+    for sharename in test_info.get("exported_sharenames", []):
+        assert sharename not in shares, "Duplicate share name present"
+        shares[sharename] = {}
+
+    # Add missing fields with defaults
+    # Todo : Remove old field names once sit-environment is updated
+    default_backend = _get_default_backend(test_info)
+    default_server = _get_default_server(test_info)
+    default_users = _get_default_users(test_info)
+
+    for sharename in shares:
+        if shares[sharename] is None:
+            shares[sharename] = {"name": sharename}
+        share = shares[sharename]
+        share.setdefault("name", sharename)
+        share.setdefault("backend", {})
+        share.setdefault("server", default_server)
+        share.setdefault("users", default_users)
+        share["backend"].setdefault("name", default_backend)
+
+    test_info["shares"] = shares
+
     return test_info
 
 
@@ -48,11 +94,14 @@ def get_mount_parameters(test_info: dict, share: str) -> typing.Dict[str, str]:
     test_info: Dict containing the parsed yaml file.
     share: The share for which to get the mount_params
     """
+    s = get_share(test_info, share)
+    server = s["server"]
+    users = list(s["users"].keys())
     return gen_mount_params(
-        test_info["public_interfaces"][0],
+        server,
         share,
-        test_info["test_users"][0]["username"],
-        test_info["test_users"][0]["password"],
+        users[0],
+        s["users"][users[0]],
     )
 
 
@@ -76,6 +125,46 @@ def generate_random_bytes(size: int) -> bytes:
     return rba[:size]
 
 
+def get_shares(test_info: dict) -> dict:
+    """
+    Get list of shares
+
+    Parameters:
+    test_info: Dict containing the parsed yaml file.
+    Returns:
+    list of dict of shares
+    """
+    return test_info["shares"]
+
+
+def get_share(test_info: dict, sharename: str) -> dict:
+    """
+    Get share dict for a given sharename
+
+    Parameters:
+    test_info: Dict containing the parsed yaml file.
+    sharename: name of the share
+    Returns:
+    dict of the share
+    """
+    shares = get_shares(test_info)
+    assert sharename in shares.keys(), "Share not found"
+    return shares[sharename]
+
+
+def is_premounted_share(share: dict) -> bool:
+    """
+    Check if the share is a premounted share
+
+    Parameters:
+    share: dict of the share
+    Returns:
+    bool
+    """
+    mntdir = share.get("path")
+    return mntdir is not None
+
+
 def get_premounted_shares(test_info: dict) -> typing.List[Path]:
     """
     Get list of premounted shares
@@ -85,8 +174,8 @@ def get_premounted_shares(test_info: dict) -> typing.List[Path]:
     Returns:
     list of paths with shares
     """
-    premounted_shares = test_info.get("premounted_shares", [])
-    return [Path(mnt) for mnt in premounted_shares]
+    share_values = get_shares(test_info).values()
+    return [Path(s["path"]) for s in share_values if is_premounted_share(s)]
 
 
 def get_exported_shares(test_info: dict) -> typing.List[str]:
@@ -97,4 +186,8 @@ def get_exported_shares(test_info: dict) -> typing.List[str]:
     Returns:
     list of exported shares
     """
-    return test_info.get("exported_sharenames", [])
+    arr = []
+    for share in get_shares(test_info).values():
+        if not is_premounted_share(share):
+            arr.append(share["name"])
+    return arr
