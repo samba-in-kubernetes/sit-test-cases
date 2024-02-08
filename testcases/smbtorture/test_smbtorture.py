@@ -121,6 +121,7 @@ def generate_smbtorture_tests() -> typing.List[typing.Tuple[str, str]]:
     return arr
 
 
+@pytest.mark.timeout(90)
 @pytest.mark.parametrize("share_name,test", generate_smbtorture_tests())
 def test_smbtorture(share_name: str, test: str) -> None:
     output = testhelper.get_tmp_file()
