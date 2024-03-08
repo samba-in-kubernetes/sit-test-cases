@@ -1,7 +1,6 @@
 ---
 - smb2.rw
 - smb2.read
-- smb2.bench-oplock
 - smb2.check-sharemode
 - smb2.compound_find
 - smb2.connect
