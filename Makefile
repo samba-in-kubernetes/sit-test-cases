@@ -10,6 +10,10 @@ define runtox
 	@cd "$(ROOT_DIR)" && tox -e $1
 endef
 
+.PHONY: selftest
+selftest:
+	$(call runtox, "selftest")
+
 .PHONY: test
 test:
 	$(call runtox, "pytest")

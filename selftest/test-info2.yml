@@ -1,0 +1,12 @@
+public_interfaces:
+  - "192.168.123.10"
+  - "192.168.123.11"
+
+exported_sharenames:
+  - "gluster-vol"
+
+test_users:
+  - {"username": "test1", "password": "x"}
+  - {"username": "test2", "password": "x"}
+
+test_backend: glusterfs

@@ -1,0 +1,30 @@
+# Server hostname to be tested
+server: server_name
+
+# Users to use for authentication
+users:
+  user1: user1password
+  user2: user2password
+
+# Backend filesystem of the exported shares
+backend: glusterfs
+
+# shares: List of dict of exported shares
+shares:
+  # share export1
+  export1:
+    # If present, it means the share is pre-mounted
+    # at the location given
+    path: /mnt/share/export1-cephfs-vfs
+    backend:
+      # If present override default backend filesystem
+      name: cephfs.vfs
+    # If present, use these credentials to perform the
+    # tests for this share
+    users:
+      test2: x
+    # If present, override the server to test for this share
+    server: hostname1
+  # share name export2
+  export2:
+    # Use default values set for this share
