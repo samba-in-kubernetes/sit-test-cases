@@ -48,7 +48,8 @@ def smbtorture(share_name: str, test: str, tmp_output: Path) -> bool:
             "--expected-failures=" + script_root + "/selftest/" + filter
         )
     flapping_list = ["flapping", "flapping.d"]
-    test_backend = test_info.get("test_backend")
+    share = testhelper.get_share(test_info, share_name)
+    test_backend = share["backend"].get("name")
     if test_backend is not None:
         flapping_file = "flapping." + test_backend
         flapping_file_path = os.path.join(
@@ -114,7 +115,7 @@ def list_smbtorture_tests():
 def generate_smbtorture_tests() -> typing.List[typing.Tuple[str, str]]:
     smbtorture_info = list_smbtorture_tests()
     arr = []
-    for share_name in test_info.get("exported_sharenames", []):
+    for share_name in testhelper.get_exported_shares(test_info):
         for torture_test in smbtorture_info:
             arr.append((share_name, torture_test))
     return arr

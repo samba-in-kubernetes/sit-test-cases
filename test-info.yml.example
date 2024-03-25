@@ -1,20 +1,35 @@
-private_interfaces:
-  - "192.168.122.100"
-  - "192.168.122.101"
+# Server hostname to be tested
+server: server_name
 
-public_interfaces:
-  - "192.168.123.10"
-  - "192.168.123.11"
+# Users to use for authentication
+users:
+  user1: user1password
 
-exported_sharenames:
-  - "gluster-vol"
+# Backend filesystem of the exported shares
+backend: glusterfs
 
-test_users:
-  - {"username": "test1", "password": "x"}
-  - {"username": "test2", "password": "x"}
+# Additional information which may be used by tests here
+# some tests may be skipped if the required config option is not set
+extra:
+  # The supplementary group to be used by test_supplementary_group
+  supplementary_group: sg
 
-test_backend: glusterfs
-
-premounted_shares:
-  - "/testdir1"
-  - "/testdir2"
+# shares: List of dict of exported shares
+shares:
+  # share name export1
+  export1:
+    # If present, it means the share is pre-mounted
+    path: /mnt/share/export1-cephfs-vfs
+    backend:
+      # If present backend filesystem
+      name: cephfs.vfs
+      # If present, provides direct access to share
+      path: /mnt/backend/export1
+    # If present, username to perform the tests with on this share
+    users:
+      test2: x
+    # If present, the hostname to use to connect to the test server
+    server: hostname1
+  # share name export2
+  export2:
+    # Use default values set for this share
