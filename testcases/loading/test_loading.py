@@ -16,7 +16,6 @@ import threading
 import typing
 import pytest
 import os
-import smbc  # type: ignore
 
 
 class SimpleLoadTest:
@@ -97,12 +96,9 @@ class SimpleLoadTest:
         time.sleep(random.random() * 0.5)
 
     def _clean_up(self):
-        try:
-            for file in self.files:
-                self.scon.unlink(f"{self.rootpath}/{file}")
-            self.files = []
-        except smbc.NoEntryError:
-            pass
+        for file in self.files:
+            self.scon.unlink(f"{self.rootpath}/{file}")
+        self.files = []
 
     def simple_load(self):
         self.scon.mkdir(self.rootpath)
