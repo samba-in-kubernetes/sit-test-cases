@@ -16,3 +16,6 @@ samba3.smb2.timestamps.time_t_10000000000
 samba3.smb2.timestamps.time_t_-1
 samba3.smb2.timestamps.time_t_-2
 samba3.smb2.timestamps.time_t_1968
+
+# https://github.com/samba-in-kubernetes/sit-test-cases/issues/80
+samba3.smb2.durable-open.alloc-size
