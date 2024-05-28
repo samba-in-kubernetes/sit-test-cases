@@ -31,3 +31,6 @@
 - smb2.bench
 - smb2.winattr2
 - smb2.charset
+- smb2.dir
+- smb2.durable-open
+- smb2.delete-on-close-perms

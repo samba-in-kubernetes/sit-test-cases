@@ -29,3 +29,6 @@ samba3.smb2.session.reauth4
 # https://github.com/samba-in-kubernetes/sit-test-cases/issues/101
 # https://tracker.ceph.com/issues/71622
 samba3.smb2.timestamps.modern_write_time_update-1
+
+# https://github.com/samba-in-kubernetes/sit-test-cases/issues/80
+samba3.smb2.durable-open.alloc-size
