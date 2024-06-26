@@ -1,6 +1,8 @@
 from smbprotocol.exceptions import SMBException  # type: ignore
 import smbclient  # type: ignore
+from smbprotocol.connection import Connection  # type: ignore
 import typing
+import uuid
 
 rw_chunk_size = 1 << 21  # 2MB
 
@@ -19,10 +21,11 @@ class SMBClient:
         self.server = hostname
         self.share = share
         self.port = port
+        self.connection_cache: dict = {}
         self.client_params = {
             "username": username,
             "password": passwd,
-            "connection_cache": {},
+            "connection_cache": self.connection_cache,
         }
         self.prepath = f"\\\\{self.server}\\{self.share}\\"
         self.connected = False
@@ -36,6 +39,12 @@ class SMBClient:
         if self.connected:
             return
         try:
+            # Manually setup connection to avoid re-using guid through
+            # the global configuration
+            connection_key = f"{self.server.lower()}:{self.port}"
+            connection = Connection(uuid.uuid4(), self.server, self.port)
+            connection.connect()
+            self.connection_cache[connection_key] = connection
             smbclient.register_session(
                 self.server, port=self.port, **self.client_params
             )
@@ -46,7 +55,7 @@ class SMBClient:
     def disconnect(self) -> None:
         self.connected = False
         smbclient.reset_connection_cache(
-            connection_cache=self.client_params["connection_cache"]
+            connection_cache=self.connection_cache
         )
 
     def _check_connected(self, action: str) -> None:
