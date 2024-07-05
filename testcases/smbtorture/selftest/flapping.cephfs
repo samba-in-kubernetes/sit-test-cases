@@ -16,3 +16,7 @@ samba3.smb2.timestamps.time_t_10000000000
 samba3.smb2.timestamps.time_t_-1
 samba3.smb2.timestamps.time_t_-2
 samba3.smb2.timestamps.time_t_1968
+
+# https://github.com/samba-in-kubernetes/sit-environment/pull/109
+# Note: CephFS(vfs) successfully completes smb2.session.reauth4.
+samba3.smb2.session.reauth4
