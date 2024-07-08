@@ -12,12 +12,24 @@ from pathlib import Path
 
 script_root = os.path.dirname(os.path.realpath(__file__))
 smbtorture_exec = "/bin/smbtorture"
-filter_subunit_exec = script_root + "/selftest/filter-subunit"
-format_subunit_exec = script_root + "/selftest/format-subunit"
+selftest_dir = script_root + "/selftest"
+filter_subunit_exec = selftest_dir + "/filter-subunit"
+format_subunit_exec = selftest_dir + "/format-subunit"
 smbtorture_tests_file = script_root + "/smbtorture-tests-info.yml"
 
 test_info_file = os.getenv("TEST_INFO_FILE")
 test_info = testhelper.read_yaml(test_info_file)
+
+
+def flapping_file(backend: str, variant: str = "") -> str:
+    file = "flapping." + backend
+    if variant and variant != "default":
+        file_variant = f"{file}-{variant}"
+        if os.path.exists(os.path.join(selftest_dir, file_variant)):
+            return file_variant
+    if os.path.exists(os.path.join(selftest_dir, file)):
+        return file
+    return ""
 
 
 def smbtorture(share_name: str, test: str, tmp_output: Path) -> bool:
@@ -50,13 +62,11 @@ def smbtorture(share_name: str, test: str, tmp_output: Path) -> bool:
     flapping_list = ["flapping", "flapping.d"]
     share = testhelper.get_share(test_info, share_name)
     test_backend = share["backend"].get("name")
+    test_backend_variant = share["backend"].get("variant")
     if test_backend is not None:
-        flapping_file = "flapping." + test_backend
-        flapping_file_path = os.path.join(
-            script_root, "selftest", flapping_file
-        )
-        if os.path.exists(flapping_file_path):
-            flapping_list.append(flapping_file)
+        file = flapping_file(test_backend, test_backend_variant)
+        if file is not None:
+            flapping_list.append(file)
     for filter in flapping_list:
         filter_subunit_cmd.append(
             "--flapping=" + script_root + "/selftest/" + filter
