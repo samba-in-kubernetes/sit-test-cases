@@ -18,7 +18,9 @@ shares:
     path: /mnt/share/export1-cephfs-vfs
     backend:
       # If present override default backend filesystem
-      name: cephfs.vfs
+      name: cephfs
+      # If present list the variant of the backend filesystem
+      variant: vfs
     # If present, use these credentials to perform the
     # tests for this share
     users:
