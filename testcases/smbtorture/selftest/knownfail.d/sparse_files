@@ -1,0 +1,10 @@
+# CephFS does not explicitly track which parts of a file are allocated/written with sparse files,
+# the st_blocks field is always populated by the file size divided by the block size.
+# This will cause tools like du(1) to overestimate consumed space.
+# (The recursive size field, maintained by CephFS, also includes file “holes” in its count.)
+
+# Refer: https://github.com/samba-in-kubernetes/sit-test-cases/issues/86
+^samba3.smb2.ioctl.sparse_punch
+^samba3.smb2.ioctl.sparse_qar_ob1
+^samba3.smb2.ioctl.sparse_punch_invalid
+^samba3.smb2.ioctl.copy-chunk streams
