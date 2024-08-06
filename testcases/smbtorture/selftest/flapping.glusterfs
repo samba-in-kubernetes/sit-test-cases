@@ -10,3 +10,6 @@
 
 #https://github.com/gluster/samba-integration/issues/241
 ^samba3.smb2.deny.*
+
+# Strictly checking ioctl tests against cephFS only
+^samba3.smb2.ioctl.*
