@@ -23,8 +23,8 @@ test_info = testhelper.read_yaml(test_info_file)
 
 def flapping_file(backend: str, variant: str = "") -> str:
     file = "flapping." + backend
-    if variant and variant != "default":
-        file_variant = f"{file}-{variant}"
+    if variant and "vfs" in variant:
+        file_variant = f"{file}-vfs"
         if os.path.exists(os.path.join(selftest_dir, file_variant)):
             return file_variant
     if os.path.exists(os.path.join(selftest_dir, file)):
@@ -62,7 +62,11 @@ def smbtorture(share_name: str, test: str, tmp_output: Path) -> bool:
     flapping_list = ["flapping", "flapping.d"]
     share = testhelper.get_share(test_info, share_name)
     test_backend = share["backend"].get("name")
-    test_backend_variant = share["backend"].get("variant")
+    test_backend_variant = (
+        share["backend"].get("method")
+        if share["backend"].get("method") is not None
+        else share["backend"].get("variant")
+    )
     if test_backend is not None:
         file = flapping_file(test_backend, test_backend_variant)
         if file is not None:
