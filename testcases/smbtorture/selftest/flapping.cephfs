@@ -20,3 +20,9 @@ samba3.smb2.timestamps.time_t_1968
 # https://github.com/samba-in-kubernetes/sit-environment/pull/109
 # Note: CephFS(vfs) successfully completes smb2.session.reauth4.
 samba3.smb2.session.reauth4
+
+# https://github.com/samba-in-kubernetes/sit-test-cases/issues/86
+samba3.smb2.ioctl.sparse_punch
+samba3.smb2.ioctl.sparse_qar_ob1
+samba3.smb2.ioctl.copy-chunk*
+samba3.smb2.ioctl.sparse_punch_invalid
