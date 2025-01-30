@@ -1,4 +1,4 @@
 Scripts and modules copied over from the samba source tree.
 
 At the time of copy, the samba head is at
-0caaa2d1723 (vfs: Remove shadow_copy2_get_real_filename_at(), 2024-01-11)
+062dc07e9b9 (s3-libnet: avoid using lp_dns_hostname() in join code, 2025-01-14)
