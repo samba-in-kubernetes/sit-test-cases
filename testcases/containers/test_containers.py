@@ -24,7 +24,7 @@ container_tests: typing.Dict[str, str] = {}
 
 
 def load_container_tests() -> int:
-    global container_tests
+    # This modifies the global container_tests
     with open(container_tests_file) as f:
         ct = yaml.safe_load(f)
     if ct is None:
