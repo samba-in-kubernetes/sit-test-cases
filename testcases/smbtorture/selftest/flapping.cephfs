@@ -20,3 +20,8 @@ samba3.smb2.timestamps.time_t_1968
 # https://github.com/samba-in-kubernetes/sit-environment/pull/109
 # Note: CephFS(vfs) successfully completes smb2.session.reauth4.
 samba3.smb2.session.reauth4
+
+# Accented character test is expected to fail on case insensitive subvolumes
+# due to unicode normalization which results in same unicode character even
+# if composed using two different unicode encodings.
+^samba3.smb2.charset.*.Testing composite character \(a umlaut\)
