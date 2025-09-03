@@ -1,0 +1,9 @@
+#Version: 0.0.1
+FROM quay.io/centos/centos:stream10
+ENV REFRESHED_AT 2025-09-03-01
+WORKDIR /
+RUN dnf install -y fio
+COPY run_fio.sh ./
+RUN install -m 00775 ./run_fio.sh /bin
+CMD ["/bin/run_fio.sh"]
+

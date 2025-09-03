@@ -3,3 +3,5 @@
   url: "quay.io/samba.org/sit-test-cases:smallfiles"
 - name: "ltp"
   url: "quay.io/samba.org/sit-test-cases:ltp"
+- name: "fio"
+  url: "quay.io/samba.org/sit-test-cases:fio"
