@@ -19,8 +19,10 @@ shares:
     backend:
       # If present override default backend filesystem
       name: cephfs
-      # If present list the variant of the backend filesystem
-      variant: vfs
+      # If present list the variant used for samba/ctdb setup
+      variant: default
+      # If present list the method used in share configuration
+      method: vfs
     # If present, use these credentials to perform the
     # tests for this share
     users:
