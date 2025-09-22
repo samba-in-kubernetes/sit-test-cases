@@ -25,3 +25,7 @@ samba3.smb2.session.reauth4
 # due to unicode normalization which results in same unicode character even
 # if composed using two different unicode encodings.
 ^samba3.smb2.charset.*.Testing composite character \(a umlaut\)
+
+# https://github.com/samba-in-kubernetes/sit-test-cases/issues/101
+# https://tracker.ceph.com/issues/71622
+samba3.smb2.timestamps.modern_write_time_update-1
