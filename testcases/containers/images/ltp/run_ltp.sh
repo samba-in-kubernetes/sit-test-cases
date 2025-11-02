@@ -113,10 +113,22 @@ declare -a LTP_TESTS=(
 	"writev07"
 )
 
+ERROR_MSG=()
 _msg() { echo "$SELF: $*" >&2; }
-_die() { _msg "$*"; exit 1; }
-_try() { ( "$@" ) || _die "failed: $*"; }
+_try() { ( "$@" ) || ERROR_MSG+=("$*"); }
 _run() { echo "$SELF: $*" >&2; _try "$@"; }
+
+_sit_check_errors() {
+	if [ ${#ERROR_MSG[@]} -ne 0 ]; then
+		echo "Errors occurred during LTP tests:"
+		for err in "${ERROR_MSG[@]}"; do
+			echo "$err" >&2
+		done
+		exit 1
+	else
+		echo "All LTP tests completed successfully."
+	fi
+}
 
 _sit_pre_ltp_tests() {
 	export LTPROOT="/opt/ltp"
@@ -157,5 +169,7 @@ _sit_run_ltp_fsstress() {
 _sit_pre_ltp_tests
 _sit_run_ltp_tests
 _sit_run_ltp_fsstress
+printf "\n\n\n"
+_sit_check_errors
 
 
