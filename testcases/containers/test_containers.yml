@@ -5,3 +5,5 @@
   url: "quay.io/samba.org/sit-test-cases:ltp"
 - name: "fio"
   url: "quay.io/samba.org/sit-test-cases:fio"
+- name: "cpython"
+  url: "quay.io/samba.org/sit-test-cases:cpython"
