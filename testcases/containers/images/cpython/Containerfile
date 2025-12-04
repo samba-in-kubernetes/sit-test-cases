@@ -1,0 +1,18 @@
+FROM quay.io/centos/centos:stream10 AS builder
+WORKDIR /tmp
+RUN dnf install -y git
+RUN git clone --depth 1 --branch v3.12.11 https://github.com/python/cpython
+RUN cd cpython && \
+  git archive --format=tar.gz --prefix=cpython/ \
+  --output=cpython.tar.gz v3.12.11 && \
+  mv cpython.tar.gz /tmp/
+
+FROM quay.io/centos/centos:stream10
+ENV REFRESHED_AT 2025-11-11-01
+WORKDIR /src
+RUN dnf install -y gcc openssl-devel bzip2-devel \
+  libffi-devel zlib-devel xz-devel wget
+COPY --from=builder /tmp/cpython.tar.gz /src
+COPY run_cpython.sh ./
+RUN install -m 00775 ./run_cpython.sh /bin
+CMD ["/bin/run_cpython.sh"]

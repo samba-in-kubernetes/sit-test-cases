@@ -56,7 +56,7 @@ def containers_check(ipaddr: str, share_name: str, test: str) -> None:
     mount_params["host"] = ipaddr
     tmp_root = testhelper.get_tmp_root()
     mount_point = testhelper.get_tmp_mount_point(tmp_root)
-    testhelper.cifs_mount(mount_params, mount_point)
+    testhelper.cifs_mount(mount_params, mount_point, "mfsymlinks")
     try:
         containers_check_mounted(mount_point, test)
     finally:

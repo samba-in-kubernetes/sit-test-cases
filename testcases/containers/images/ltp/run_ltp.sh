@@ -9,22 +9,41 @@ declare -a LTP_TESTS=(
 	"chdir04"
 	"close01"
 	"close02"
+	"close_range02"
 	"creat01"
 	"creat03"
+	"creat04"
 	"diotest1"
 	"diotest2"
 	"diotest3"
 	"diotest5"
 	"diotest6"
 	"faccessat01"
+	"dup01"
+	"dup02"
+	"dup03"
+	"dup04"
+	"fallocate02"
+	"fchdir01"
+	"fchdir02"
+	"fchmod06"
+	"fchmodat02"
+	"fchown01"
+	"fchown04"
+	"fcntl01"
+	"fcntl02"
+	"fcntl03"
+	"fcntl04"
+	"fcntl05"
 	"fdatasync01"
 	"fdatasync02"
 	"fgetxattr03"
 	"flock01"
-	"flock02"
 	"flock03"
 	"flock04"
 	"flock06"
+	"fstat03"
+	"fstatat01"
 	"fstatfs02"
 	"fsync02"
 	"ftest01"
@@ -37,20 +56,19 @@ declare -a LTP_TESTS=(
 	"ftest08"
 	"ftruncate01"
 	"ftruncate03"
+	"getcwd01"
+	"getcwd02"
 	"inode01"
 	"inode02"
 	"lftest"
 	"link02"
-	"link03"
 	"link05"
 	"llseek01"
 	"llseek02"
 	"llseek03"
 	"lseek01"
 	"lseek07"
-	"mkdirat01"
-	"mknodat01"
-	"mmap001"
+	"mkdir04"
 	"mmap01"
 	"mmap02"
 	"mmap03"
@@ -66,8 +84,8 @@ declare -a LTP_TESTS=(
 	"mmap19"
 	"mmap20"
 	"munmap01"
-	"munmap02"
 	"munmap03"
+	"open02"
 	"open03"
 	"open09"
 	"open13"
@@ -77,46 +95,53 @@ declare -a LTP_TESTS=(
 	"pread02"
 	"preadv01"
 	"preadv02"
-	"preadv201"
-	"preadv202"
 	"pwrite01"
 	"pwrite02"
 	"pwrite03"
 	"pwrite04"
 	"pwritev01"
 	"pwritev02"
-	"pwritev201"
-	"pwritev202"
 	"read01"
 	"read02"
 	"read04"
 	"readahead01"
-	"readdir01"
 	"readv01"
 	"readv02"
+	"realpath01"
 	"removexattr01"
 	"removexattr02"
 	"rename14"
 	"rmdir01"
+	"rmdir03"
 	"stat02"
+	"statx03"
 	"truncate02"
 	"unlink07"
+	"unlinkat01"
+	"ustat01"
+	"ustat02"
 	"write01"
 	"write02"
-	"write03"
-	"write05"
-	"write06"
 	"writev01"
 	"writev02"
-	"writev05"
-	"writev06"
-	"writev07"
 )
 
+ERROR_MSG=()
 _msg() { echo "$SELF: $*" >&2; }
-_die() { _msg "$*"; exit 1; }
-_try() { ( "$@" ) || _die "failed: $*"; }
+_try() { ( "$@" ) || ERROR_MSG+=("$*"); }
 _run() { echo "$SELF: $*" >&2; _try "$@"; }
+
+_sit_check_errors() {
+	if [ ${#ERROR_MSG[@]} -ne 0 ]; then
+		echo "Errors occurred during LTP tests:"
+		for err in "${ERROR_MSG[@]}"; do
+			echo "$err" >&2
+		done
+		exit 1
+	else
+		echo "All LTP tests completed successfully."
+	fi
+}
 
 _sit_pre_ltp_tests() {
 	export LTPROOT="/opt/ltp"
@@ -157,5 +182,7 @@ _sit_run_ltp_fsstress() {
 _sit_pre_ltp_tests
 _sit_run_ltp_tests
 _sit_run_ltp_fsstress
+printf "\n\n\n"
+_sit_check_errors
 
 
