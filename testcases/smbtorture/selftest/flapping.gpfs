@@ -5,3 +5,6 @@
 # Ignore due to lack of proper multichannel setup.
 ^samba3.smb2.session.bind2
 ^samba3.smb2.session.two_logoff
+
+# Ignore as it needs hardcoded share
+samba3.smb2.acls.*.ACCESSBASED
