@@ -122,7 +122,7 @@ def generate_random_bytes(size: int) -> bytes:
         rem = size - len(rba)
         rnd = bytearray(random.randbytes(min(rem, 1024)))
         rba = rba + rnd + rba
-    return rba[:size]
+    return bytes(rba[:size])
 
 
 def get_shares(test_info: dict) -> dict:
