@@ -21,6 +21,8 @@ samba3.smb2.timestamps.time_t_1968
 # Note: CephFS(vfs) successfully completes smb2.session.reauth4.
 samba3.smb2.session.reauth4
 
+# Ignore as it needs hardcoded share
+samba3.smb2.acls.*.ACCESSBASED
 # Accented character test is expected to fail on case insensitive subvolumes
 # due to unicode normalization which results in same unicode character even
 # if composed using two different unicode encodings.

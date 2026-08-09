@@ -8,3 +8,6 @@
 
 # https://github.com/samba-in-kubernetes/sit-environment/pull/109
 samba3.smb2.session.reauth4
+
+# Ignore as it needs hardcoded share
+samba3.smb2.acls.*.ACCESSBASED
