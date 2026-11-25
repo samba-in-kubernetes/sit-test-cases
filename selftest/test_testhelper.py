@@ -1,5 +1,9 @@
-import testhelper
+import errno
+import os
 from pathlib import Path
+
+import pytest
+import testhelper
 
 
 def test_read_yaml1():
@@ -60,3 +64,27 @@ def test_generate_exported_shares():
         arr.append((share["server"], share["name"]))
     assert len(arr) == 1
     assert ("server_name", "export2") in arr
+
+
+@pytest.mark.parametrize("size", [0, 16])
+def test_get_tmp_file_closes_descriptor(
+    tmp_path: Path, size: int, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    filename = tmp_path / "testfile"
+    fd = os.open(filename, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
+    monkeypatch.setattr(
+        "testhelper.fshelper.tempfile.mkstemp",
+        lambda **kwargs: (fd, str(filename)),
+    )
+    try:
+        path = testhelper.get_tmp_file(tmp_root=tmp_path, size=size)
+        with pytest.raises(OSError) as exc:
+            os.fstat(fd)
+        assert exc.value.errno == errno.EBADF
+        assert path.stat().st_size == size
+    finally:
+        try:
+            os.close(fd)
+        except OSError as error:
+            if error.errno != errno.EBADF:
+                raise

@@ -13,6 +13,7 @@
 
 import testhelper
 import random
+import tempfile
 import time
 import threading
 import typing
@@ -129,10 +130,8 @@ class SimpleLoadTest:
                     return
                 self.stats["read"] += 1
                 if self.testfile:
-                    tfile = testhelper.get_tmp_file()
-                    with open(tfile, "wb") as fd:
+                    with tempfile.TemporaryFile() as fd:
                         self.smbclient.read(file, fd)
-                    os.unlink(tfile)
                 else:
                     self.smbclient.read_text(file)
             elif op == "write":

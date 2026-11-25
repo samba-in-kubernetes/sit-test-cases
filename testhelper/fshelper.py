@@ -43,8 +43,8 @@ def get_tmp_file(
     tmp_file: Location of temporary file.
     """
     fd, file_name = tempfile.mkstemp(dir=tmp_root)
-    if size != 0:
-        with os.fdopen(fd, "wb") as f:
+    with os.fdopen(fd, "wb") as f:
+        if size != 0:
             f.write(os.urandom(size))
     return Path(file_name)
 
